@@ -1,5 +1,5 @@
 %{
-#include "tokens.h"
+#include "parser.tab.h"
 %}
 
 %option yylineno
@@ -7,7 +7,7 @@
 
 WHITESPACE[ ]
 TAB[\t]
-SPECIAL[-!*/%+<>{}()=,;]
+SPECIAL[-!*/%+-<>{}()=,;]
 
 %%
 
@@ -22,7 +22,7 @@ return { return TK_PR_RETURN; }
 
 [0-9]+ { return TK_LIT_INT; }
 [0-9]*\.[0-9]+ { return TK_LIT_FLOAT; }
-[a-z_][a-z0-9_]* { return TK_IDENTIFICADOR; }
+[a-z_][a-zA-Z0-9_]* { return TK_IDENTIFICADOR; }
 
 "<=" { return TK_OC_LE; }
 ">=" { return TK_OC_GE; }
@@ -42,5 +42,5 @@ return { return TK_PR_RETURN; }
 %%
 
 int get_line_number(void) {
-  return yylineno;
+    return yylineno;
 }
