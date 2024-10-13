@@ -1,9 +1,10 @@
 %{
 // LUCAS PORTELA LOPES - 00323986
-// VINICIUS MATTE MEDEIROS - 
+// VINICIUS MATTE MEDEIROS - 00330087
 int yylex(void);
 void yyerror (char const *mensagem);
 #include <stdio.h>
+extern int get_line_number();
 %}
 
 %define parse.error verbose
@@ -27,67 +28,168 @@ void yyerror (char const *mensagem);
 
 %%
 
+/* 
 programa: funcao 
     | empty ;
+*/
+
+programa: 
+    lista_funcoes 
+    ;
+
+lista_funcoes:
+    empty
+    | lista_funcoes funcao
+    ;
 
 empty: ;
 
-tipo: TK_PR_INT | TK_PR_FLOAT ;
+tipo: 
+    TK_PR_INT | TK_PR_FLOAT 
+    ;
 
-funcao: cabecalho_funcao corpo_funcao ;
+funcao: 
+    cabecalho_funcao bloco_comandos 
+    ;
 
-cabecalho_funcao: TK_IDENTIFICADOR '=' lista_parametros '>'  tipo;
+cabecalho_funcao: 
+    TK_IDENTIFICADOR '=' lista_parametros '>' tipo
+    ;
 
-lista_parametros: lista_parametros TK_OC_OR parametros 
+/*
+lista_parametros: 
+    lista_parametros TK_OC_OR parametros 
     | parametros ;
 
 parametros: lista_parametros 
     | empty ;
 
 parametro: TK_IDENTIFICADOR '<' '-' tipo;
+*/
 
-corpo_funcao: bloco_comandos ;
+lista_parametros: 
+    empty
+    | lista_parametros TK_OC_OR parametro
+    | parametro 
+    ;
 
-bloco_comandos: '{' comandos '}' ;
+parametro:
+    TK_IDENTIFICADOR '<' '-' tipo 
+    ;
 
-comandos: comandos comando_simples 
-    | empty ;
+bloco_comandos: 
+    '{' comandos '}' 
+    ;
 
-comando_simples: declaracao_variaveis 
-    | atribuicao
+comandos: 
+    empty
+    | comandos comando_simples 
+    ;
+
+comando_simples: 
+    declaracao_variavel ';'
+    | atribuicao ';'
     | fluxo_controle
-    | operacao_retorno
+    | operacao_retorno ';'
     | bloco_comandos
-    | chamada_funcoes ;
+    | chamada_funcao ';' 
+    ;
 
-declaracao_variaveis: tipo lista_variaveis ;
+declaracao_variavel: 
+    tipo lista_variaveis 
+    ;
 
-atribuicao: TK_IDENTIFICADOR '=' expressao ;
+lista_variaveis: 
+    lista_variaveis ',' TK_IDENTIFICADOR inicializacao_opcional
+    | TK_IDENTIFICADOR inicializacao_opcional 
+    ;
 
-operacao_retorno: TK_PR_RETURN expressao ;
+inicializacao_opcional: 
+    TK_OC_LE literal
+    | empty 
+    ;
 
-chamada_funcoes: TK_IDENTIFICADOR '(' argumentos ')' ;
+literal: 
+    TK_LIT_INT 
+    | TK_LIT_FLOAT
+    ;
 
-argumentos: lista_argumentos 
-    | empty ;
+atribuicao:
+    TK_IDENTIFICADOR '=' expressao 
+    ;
 
-lista_argumentos: lista_argumentos ',' expressao
-    | expressao ;
+operacao_retorno: 
+    TK_PR_RETURN expressao 
+    ;
 
-lista_variaveis: lista_variaveis ',' TK_IDENTIFICADOR inicializacao_opcional
-               | TK_IDENTIFICADOR inicializacao_opcional ;
+chamada_funcao: 
+    TK_IDENTIFICADOR '(' lista_argumentos ')' 
+    ;
 
-inicializacao_opcional: TK_OC_LE literal
-    | empty ;
+lista_argumentos: 
+    empty
+    | lista_argumentos ',' expressao
+    | expressao 
+    ;
 
-literal: TK_LIT_INT 
-       | TK_LIT_FLOAT 
+fluxo_controle:
+    TK_PR_IF '(' expressao ')' bloco_comandos
+    | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos
+    | TK_PR_WHILE '(' expressao ')' bloco_comandos
+    ;
 
-fluxo_controle: 
+expressao:
+    expressao_precedencia_6
+    | expressao TK_OC_OR expressao_precedencia_6
+    ;
 
-expressao: (Toda a parte 3.4)
+expressao_precedencia_6:
+    expressao_precedencia_5
+    | expressao_precedencia_6 TK_OC_AND expressao_precedencia_5
+    ;
+
+expressao_precedencia_5:
+    expressao_precedencia_4
+    | expressao_precedencia_5 TK_OC_EQ expressao_precedencia_4
+    | expressao_precedencia_5 TK_OC_NE expressao_precedencia_4
+    ;
+
+expressao_precedencia_4:
+    expressao_precedencia_3
+    | expressao_precedencia_4 '<' expressao_precedencia_3
+    | expressao_precedencia_4 '>' expressao_precedencia_3
+    | expressao_precedencia_4 TK_OC_LE expressao_precedencia_3
+    | expressao_precedencia_4 TK_OC_GE expressao_precedencia_3
+    ;
+
+expressao_precedencia_3:
+    expressao_precedencia_2
+    | expressao_precedencia_3 '+' expressao_precedencia_2
+    | expressao_precedencia_3 '-' expressao_precedencia_2
+    ;
+
+expressao_precedencia_2:
+    expressao_precedencia_1
+    | expressao_precedencia_2 '*' expressao_precedencia_1
+    | expressao_precedencia_2 '/' expressao_precedencia_1
+    | expressao_precedencia_2 '%' expressao_precedencia_1
+    ;
+
+expressao_precedencia_1:
+    operandos_simples
+    | '(' expressao ')'
+    | '-' expressao_precedencia_1
+    | '!' expressao_precedencia_1 
+    ;
+
+operandos_simples:
+        literal
+    |   TK_IDENTIFICADOR
+    |   chamada_funcao
+    ;
+
 %%
 
-void yyerror(const char *mensagem) {
-    printf("Erro %s\n", mensagem);
+void yyerror(const char *error) {
+  fprintf(stderr, "%d | error: %s", get_line_number(), error);
 }

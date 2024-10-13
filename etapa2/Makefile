@@ -4,7 +4,7 @@ $(ETAPA): main.o lex.yy.o parser.tab.o
 	gcc -o $(ETAPA) main.o lex.yy.o parser.tab.o 
 
 parser.tab.h: parser.y
-	bison -d parser.y
+	bison -d -Wcounterexamples parser.y
 
 lex.yy.c: scanner.l
 	flex scanner.l
