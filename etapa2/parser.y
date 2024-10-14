@@ -28,11 +28,6 @@ extern int get_line_number();
 
 %%
 
-/* 
-programa: funcao 
-    | empty ;
-*/
-
 programa: 
     lista_funcoes 
     ;
@@ -55,17 +50,6 @@ funcao:
 cabecalho_funcao: 
     TK_IDENTIFICADOR '=' lista_parametros '>' tipo
     ;
-
-/*
-lista_parametros: 
-    lista_parametros TK_OC_OR parametros 
-    | parametros ;
-
-parametros: lista_parametros 
-    | empty ;
-
-parametro: TK_IDENTIFICADOR '<' '-' tipo;
-*/
 
 lista_parametros: 
     empty
@@ -191,5 +175,5 @@ operandos_simples:
 %%
 
 void yyerror(const char *error) {
-  fprintf(stderr, "%d | error: %s", get_line_number(), error);
+  fprintf(stderr, "%d | error: %s\n", get_line_number(), error);
 }
