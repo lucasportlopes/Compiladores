@@ -18,6 +18,9 @@ lex.yy.o: lex.yy.c
 parser.tab.o: parser.tab.c
 	gcc -c parser.tab.c
 
+tar:
+	tar cvzf $(ETAPA).tgz main.c scanner.l parser.y Makefile
+
 .PHONY: clean
 
 clean:
