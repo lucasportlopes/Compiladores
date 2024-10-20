@@ -73,9 +73,9 @@ comandos:
 comando_simples: 
     declaracao_variavel ';'
     | atribuicao ';'
-    | fluxo_controle
+    | fluxo_controle ';'
     | operacao_retorno ';'
-    | bloco_comandos
+    | bloco_comandos ';'
     | chamada_funcao ';' 
     ;
 

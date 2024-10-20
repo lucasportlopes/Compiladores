@@ -1,4 +1,6 @@
 %{
+// LUCAS PORTELA LOPES - 00323986
+// VINICIUS MATTE MEDEIROS - 00330087
 #include "tokens.h"
 %}
 
