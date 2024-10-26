@@ -111,8 +111,7 @@ chamada_funcao:
     ;
 
 lista_argumentos: 
-    empty
-    | lista_argumentos ',' expressao
+    lista_argumentos ',' expressao
     | expressao 
     ;
 
