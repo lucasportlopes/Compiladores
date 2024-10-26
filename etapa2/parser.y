@@ -174,5 +174,5 @@ operandos_simples:
 %%
 
 void yyerror(const char *error) {
-  fprintf(stderr, "%d | error: %s\n", get_line_number(), error);
+  fprintf(stderr, "Syntax error at line %d: %s\n", get_line_number(), error);
 }
