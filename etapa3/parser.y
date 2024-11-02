@@ -33,22 +33,28 @@ extern int get_line_number();
 %%
 
 programa: 
-    lista_funcoes 
+    lista_funcoes { $$ = s1; }
     ;
 
 lista_funcoes:
-    empty
-    | lista_funcoes funcao
+    empty { $$ = NULL; }
+    | lista_funcoes funcao { 
+        $$ = $1; 
+        asd_add_child($$, $2);
+    }
     ;
 
-empty: ;
+empty: { $$ = NULL };
 
 tipo: 
     TK_PR_INT | TK_PR_FLOAT 
     ;
 
 funcao: 
-    cabecalho_funcao bloco_comandos 
+    cabecalho_funcao bloco_comandos {
+        $$ = $1;
+        asd_add_child($$, $2);
+    }
     ;
 
 cabecalho_funcao: 
@@ -56,9 +62,12 @@ cabecalho_funcao:
     ;
 
 lista_parametros: 
-    empty
-    | lista_parametros TK_OC_OR parametro
-    | parametro 
+    empty { $$ = NULL; }
+    | lista_parametros TK_OC_OR parametro {
+        $$ = $1;
+        asd_add_child($$, $3);
+    }
+    | parametro  { $$ = $1 }
     ;
 
 parametro:
