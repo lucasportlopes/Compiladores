@@ -136,8 +136,8 @@ chamada_funcao:
     ;
 
 lista_argumentos: 
-    lista_argumentos ',' expressao
-    | expressao 
+    lista_argumentos ',' expressao { $$ = $1; asd_add_child($$, $3); }
+    | expressao { $$ = $1; }
     ;
 
 fluxo_controle:
