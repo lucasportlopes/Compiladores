@@ -55,6 +55,7 @@ extern int get_line_number();
 %type<arvore> lista_funcoes
 %type<arvore> programa
 %type<arvore> literal
+%type<arvore> lista_argumentos
 
 %%
 
@@ -135,9 +136,9 @@ chamada_funcao:
     TK_IDENTIFICADOR '(' lista_argumentos ')' 
     ;
 
-lista_argumentos: 
-    lista_argumentos ',' expressao { $$ = $1; asd_add_child($$, $3); }
-    | expressao { $$ = $1; }
+lista_argumentos:
+    expressao { $$ = $1; }
+    | lista_argumentos ',' expressao { $$ = $1; asd_add_child($$, $3); }
     ;
 
 fluxo_controle:
