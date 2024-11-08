@@ -10,41 +10,73 @@ extern int get_line_number();
 %define parse.error verbose
 
 %union {
-    valor_lexico valor_lexico;
+    valor_lexico_t valor_lexico;
+    asd_tree_t *arvore;
 }
+%code requires { #include "asd.h" }
 
-%token<valor_lexico> TK_PR_INT
-%token<valor_lexico> TK_PR_FLOAT
-%token<valor_lexico> TK_PR_IF
-%token<valor_lexico> TK_PR_ELSE
-%token<valor_lexico> TK_PR_WHILE
-%token<valor_lexico> TK_PR_RETURN
-%token<valor_lexico> TK_OC_LE
-%token<valor_lexico> TK_OC_GE
-%token<valor_lexico> TK_OC_EQ
-%token<valor_lexico> TK_OC_NE
-%token<valor_lexico> TK_OC_AND
-%token<valor_lexico> TK_OC_OR
+%token TK_PR_INT
+%token TK_PR_FLOAT
+%token TK_PR_IF
+%token TK_PR_ELSE
+%token TK_PR_WHILE
+%token TK_PR_RETURN
+%token TK_OC_LE
+%token TK_OC_GE
+%token TK_OC_EQ
+%token TK_OC_NE
+%token TK_OC_AND
+%token TK_OC_OR
 %token<valor_lexico> TK_IDENTIFICADOR
 %token<valor_lexico> TK_LIT_INT
 %token<valor_lexico> TK_LIT_FLOAT
-%token<valor_lexico> TK_ERRO
+%token TK_ERRO
+
+%type<arvore> operandos_simples
+%type<arvore> expressao_precedencia_1
+%type<arvore> expressao_precedencia_2
+%type<arvore> expressao_precedencia_3
+%type<arvore> expressao_precedencia_4
+%type<arvore> expressao_precedencia_5
+%type<arvore> expressao_precedencia_6
+%type<arvore> expressao
+%type<arvore> fluxo_controle
+%type<arvore> chamada_funcao
+%type<arvore> operacao_retorno
+%type<arvore> atribuicao
+%type<arvore> declaracao_variavel
+%type<arvore> comando_simples
+%type<arvore> comandos
+%type<arvore> bloco_comandos
+%type<arvore> parametro
+%type<arvore> lista_parametros
+%type<arvore> cabecalho_funcao
+%type<arvore> funcao
+%type<arvore> lista_funcoes
+%type<arvore> programa
+%type<arvore> literal
 
 %%
 
 programa: 
-    lista_funcoes { $$ = s1; }
+    lista_funcoes { 
+        /* $$ = s1; */ 
+        }
     ;
 
 lista_funcoes:
-    empty { $$ = NULL; }
+    empty { 
+        /* $$ = NULL; */
+         }
     | lista_funcoes funcao { 
-        $$ = $1; 
-        asd_add_child($$, $2);
+        /* $$ = $1; */ 
+        /* asd_add_child($$, $2); */
     }
     ;
 
-empty: { $$ = NULL };
+empty: { 
+    /* $$ = NULL */ 
+    };
 
 tipo: 
     TK_PR_INT | TK_PR_FLOAT 
@@ -52,8 +84,8 @@ tipo:
 
 funcao: 
     cabecalho_funcao bloco_comandos {
-        $$ = $1;
-        asd_add_child($$, $2);
+        /* $$ = $1;*/
+        /* asd_add_child($$, $2); */
     }
     ;
 
@@ -62,12 +94,16 @@ cabecalho_funcao:
     ;
 
 lista_parametros: 
-    empty { $$ = NULL; }
+    empty { 
+        /* $$ = NULL; */
+        }
     | lista_parametros TK_OC_OR parametro {
-        $$ = $1;
-        asd_add_child($$, $3);
+        /* $$ = $1;*/
+        /* asd_add_child($$, $3); */
     }
-    | parametro  { $$ = $1 }
+    | parametro  { 
+        /* $$ = $1 */
+        }
     ;
 
 parametro:
@@ -104,11 +140,6 @@ lista_variaveis:
 inicializacao_opcional: 
     TK_OC_LE literal
     | empty 
-    ;
-
-literal: 
-    TK_LIT_INT 
-    | TK_LIT_FLOAT
     ;
 
 atribuicao:
@@ -178,19 +209,18 @@ expressao_precedencia_1:
     | '!' expressao_precedencia_1 
     ;
 
+literal: 
+    TK_LIT_INT 
+    | TK_LIT_FLOAT
+    ;
+
 operandos_simples:
-        literal
-    |   TK_IDENTIFICADOR
+        literal { $$ = asd_new($1->label); }
+    |   TK_IDENTIFICADOR { $$ = asd_new($1.valor_token); }
     |   chamada_funcao
     ;
 
 %%
-
-typedef struct {
-    int linha;
-    int tipo_token;
-    char *valor_token;
-} valor_lexico;
 
 void yyerror(const char *error) {
   fprintf(stderr, "Syntax error at line %d: %s\n", get_line_number(), error);
