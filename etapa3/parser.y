@@ -147,56 +147,56 @@ fluxo_controle:
     ;
 
 expressao:
-    expressao_precedencia_6
-    | expressao TK_OC_OR expressao_precedencia_6
+    expressao_precedencia_6 { $$ = $1; }
+    | expressao TK_OC_OR expressao_precedencia_6 { $$ = asd_new("|"); asd_add_child($$, $1); asd_add_child($$, $3); }
     ;
 
 expressao_precedencia_6:
-    expressao_precedencia_5
-    | expressao_precedencia_6 TK_OC_AND expressao_precedencia_5
+    expressao_precedencia_5 { $$ = $1; }
+    | expressao_precedencia_6 TK_OC_AND expressao_precedencia_5 { $$ = asd_new("&"); asd_add_child($$, $1); asd_add_child($$, $3); }
     ;
 
 expressao_precedencia_5:
-    expressao_precedencia_4
-    | expressao_precedencia_5 TK_OC_EQ expressao_precedencia_4
-    | expressao_precedencia_5 TK_OC_NE expressao_precedencia_4
+    expressao_precedencia_4 { $$ = $1; }
+    | expressao_precedencia_5 TK_OC_EQ expressao_precedencia_4 { $$ = asd_new("=="); asd_add_child($$, $1); asd_add_child($$, $3); }
+    | expressao_precedencia_5 TK_OC_NE expressao_precedencia_4 { $$ = asd_new("!="); asd_add_child($$, $1); asd_add_child($$, $3); }
     ;
 
 expressao_precedencia_4:
-    expressao_precedencia_3
-    | expressao_precedencia_4 '<' expressao_precedencia_3
-    | expressao_precedencia_4 '>' expressao_precedencia_3
-    | expressao_precedencia_4 TK_OC_LE expressao_precedencia_3
-    | expressao_precedencia_4 TK_OC_GE expressao_precedencia_3
+    expressao_precedencia_3 { $$ = $1; }
+    | expressao_precedencia_4 '<' expressao_precedencia_3 { $$ = asd_new("<"); asd_add_child($$, $1); asd_add_child($$, $3); }
+    | expressao_precedencia_4 '>' expressao_precedencia_3 { $$ = asd_new(">"); asd_add_child($$, $1); asd_add_child($$, $3); }
+    | expressao_precedencia_4 TK_OC_LE expressao_precedencia_3 { $$ = asd_new("<="); asd_add_child($$, $1); asd_add_child($$, $3); }
+    | expressao_precedencia_4 TK_OC_GE expressao_precedencia_3 { $$ = asd_new(">="); asd_add_child($$, $1); asd_add_child($$, $3); }
     ;
 
 expressao_precedencia_3:
-    expressao_precedencia_2
-    | expressao_precedencia_3 '+' expressao_precedencia_2
-    | expressao_precedencia_3 '-' expressao_precedencia_2
+    expressao_precedencia_2 { $$ = $1; }
+    | expressao_precedencia_3 '+' expressao_precedencia_2 { $$ = asd_new("+"); asd_add_child($$, $1); asd_add_child($$, $3); }
+    | expressao_precedencia_3 '-' expressao_precedencia_2 { $$ = asd_new("-"); asd_add_child($$, $1); asd_add_child($$, $3); }
     ;
 
 expressao_precedencia_2:
-    expressao_precedencia_1
-    | expressao_precedencia_2 '*' expressao_precedencia_1
-    | expressao_precedencia_2 '/' expressao_precedencia_1
-    | expressao_precedencia_2 '%' expressao_precedencia_1
+    expressao_precedencia_1 { $$ = $1; }
+    | expressao_precedencia_2 '*' expressao_precedencia_1 { $$ = asd_new("*"); asd_add_child($$, $1); asd_add_child($$, $3); }
+    | expressao_precedencia_2 '/' expressao_precedencia_1 { $$ = asd_new("/"); asd_add_child($$, $1); asd_add_child($$, $3); }
+    | expressao_precedencia_2 '%' expressao_precedencia_1 { $$ = asd_new("%"); asd_add_child($$, $1); asd_add_child($$, $3); }
     ;
 
 expressao_precedencia_1:
-    operandos_simples
-    | '(' expressao ')'
-    | '-' expressao_precedencia_1
-    | '!' expressao_precedencia_1 
+    operandos_simples { $$ = $1; }
+    | '(' expressao ')' { $$ = $2; }
+    | '-' expressao_precedencia_1 { $$ = asd_new("-"); asd_add_child($$, $2); }
+    | '!' expressao_precedencia_1 { $$ = asd_new("!"); asd_add_child($$, $2); }
     ;
 
 literal: 
-    TK_LIT_INT 
-    | TK_LIT_FLOAT 
+    TK_LIT_INT { $$ = asd_new($1.valor_token); }
+    | TK_LIT_FLOAT { $$ = asd_new($1.valor_token); }
     ;
 
 operandos_simples:
-        literal { $$ = asd_new($1->label); }
+        literal { $$ = $1; }
     |   TK_IDENTIFICADOR { $$ = asd_new($1.valor_token); }
     |   chamada_funcao { $$ = $1; }
     ;
