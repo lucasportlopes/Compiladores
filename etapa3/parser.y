@@ -5,15 +5,17 @@ int yylex(void);
 void yyerror (char const *mensagem);
 #include <stdio.h>
 extern int get_line_number();
+extern void *arvore;
 %}
 
 %define parse.error verbose
 
+%code requires { #include "asd.h" }
+
 %union {
     valor_lexico_t valor_lexico;
-    asd_tree_t *arvore;
+    asd_tree_t *arvore_t;
 }
-%code requires { #include "asd.h" }
 
 %token TK_PR_INT
 %token TK_PR_FLOAT
@@ -32,35 +34,35 @@ extern int get_line_number();
 %token<valor_lexico> TK_LIT_FLOAT
 %token TK_ERRO
 
-%type<arvore> operandos_simples
-%type<arvore> expressao_precedencia_1
-%type<arvore> expressao_precedencia_2
-%type<arvore> expressao_precedencia_3
-%type<arvore> expressao_precedencia_4
-%type<arvore> expressao_precedencia_5
-%type<arvore> expressao_precedencia_6
-%type<arvore> expressao
-%type<arvore> fluxo_controle
-%type<arvore> chamada_funcao
-%type<arvore> operacao_retorno
-%type<arvore> atribuicao
-%type<arvore> declaracao_variavel
-%type<arvore> comando_simples
-%type<arvore> comandos
-%type<arvore> bloco_comandos
-%type<arvore> parametro
-%type<arvore> lista_parametros
-%type<arvore> cabecalho_funcao
-%type<arvore> funcao
-%type<arvore> lista_funcoes
-%type<arvore> programa
-%type<arvore> literal
+%type<arvore_t> operandos_simples
+%type<arvore_t> expressao_precedencia_1
+%type<arvore_t> expressao_precedencia_2
+%type<arvore_t> expressao_precedencia_3
+%type<arvore_t> expressao_precedencia_4
+%type<arvore_t> expressao_precedencia_5
+%type<arvore_t> expressao_precedencia_6
+%type<arvore_t> expressao
+%type<arvore_t> fluxo_controle
+%type<arvore_t> chamada_funcao
+%type<arvore_t> operacao_retorno
+%type<arvore_t> atribuicao
+%type<arvore_t> declaracao_variavel
+%type<arvore_t> comando_simples
+%type<arvore_t> comandos
+%type<arvore_t> bloco_comandos
+%type<arvore_t> parametro
+%type<arvore_t> lista_parametros
+%type<arvore_t> cabecalho_funcao
+%type<arvore_t> funcao
+%type<arvore_t> lista_funcoes
+%type<arvore_t> programa
+%type<arvore_t> literal
 
 %%
 
 programa: 
     lista_funcoes { 
-        /* $$ = s1; */ 
+        $$ = $1;  arvore = $$;
         }
     ;
 
@@ -166,23 +168,23 @@ fluxo_controle:
     ;
 
 expressao:
-    expressao_precedencia_6
+    expressao_precedencia_6 { $$ = $1; }
     | expressao TK_OC_OR expressao_precedencia_6
     ;
 
 expressao_precedencia_6:
-    expressao_precedencia_5
+    expressao_precedencia_5 { $$ = $1; }
     | expressao_precedencia_6 TK_OC_AND expressao_precedencia_5
     ;
 
 expressao_precedencia_5:
-    expressao_precedencia_4
+    expressao_precedencia_4 { $$ = $1; }
     | expressao_precedencia_5 TK_OC_EQ expressao_precedencia_4
     | expressao_precedencia_5 TK_OC_NE expressao_precedencia_4
     ;
 
 expressao_precedencia_4:
-    expressao_precedencia_3
+    expressao_precedencia_3 { $$ = $1; }
     | expressao_precedencia_4 '<' expressao_precedencia_3
     | expressao_precedencia_4 '>' expressao_precedencia_3
     | expressao_precedencia_4 TK_OC_LE expressao_precedencia_3
@@ -190,33 +192,45 @@ expressao_precedencia_4:
     ;
 
 expressao_precedencia_3:
-    expressao_precedencia_2
+    expressao_precedencia_2 { $$ = $1; }
     | expressao_precedencia_3 '+' expressao_precedencia_2
     | expressao_precedencia_3 '-' expressao_precedencia_2
     ;
 
 expressao_precedencia_2:
-    expressao_precedencia_1
+    expressao_precedencia_1 {  $$ = $1; }
     | expressao_precedencia_2 '*' expressao_precedencia_1
     | expressao_precedencia_2 '/' expressao_precedencia_1
     | expressao_precedencia_2 '%' expressao_precedencia_1
     ;
 
 expressao_precedencia_1:
-    operandos_simples
-    | '(' expressao ')'
+    operandos_simples { $$ = $1; }
+    | '(' expressao ')' { $$ = $2; }
     | '-' expressao_precedencia_1
     | '!' expressao_precedencia_1 
     ;
 
 literal: 
-    TK_LIT_INT 
-    | TK_LIT_FLOAT
+    TK_LIT_INT { 
+        /* $$ = asd_new_lexico($1); */
+        $$ = asd_new("test_int"); 
+        }
+    | TK_LIT_FLOAT { 
+        /* $$ = asd_new_lexico($1); */ 
+        $$ = asd_new("test_float"); 
+        }
     ;
 
 operandos_simples:
-        literal { $$ = asd_new($1->label); }
-    |   TK_IDENTIFICADOR { $$ = asd_new($1.valor_token); }
+        literal { 
+            /* $$ = asd_new_lexico($1); */
+            $$ = asd_new("test_literal"); 
+            }
+    |   TK_IDENTIFICADOR { 
+            $$ = asd_new("test_identificador"); 
+            /* $$ = asd_new_lexico($1); */ 
+        }
     |   chamada_funcao
     ;
 
