@@ -59,34 +59,22 @@ extern int get_line_number();
 %%
 
 programa: 
-    lista_funcoes { 
-        /* $$ = s1; */ 
-        }
+    lista_funcoes
     ;
 
 lista_funcoes:
-    empty { 
-        /* $$ = NULL; */
-         }
-    | lista_funcoes funcao { 
-        /* $$ = $1; */ 
-        /* asd_add_child($$, $2); */
-    }
+    empty 
+    | lista_funcoes funcao
     ;
 
-empty: { 
-    /* $$ = NULL */ 
-    };
+empty: ;
 
 tipo: 
     TK_PR_INT | TK_PR_FLOAT 
     ;
 
 funcao: 
-    cabecalho_funcao bloco_comandos {
-        /* $$ = $1;*/
-        /* asd_add_child($$, $2); */
-    }
+    cabecalho_funcao bloco_comandos
     ;
 
 cabecalho_funcao: 
@@ -94,16 +82,9 @@ cabecalho_funcao:
     ;
 
 lista_parametros: 
-    empty { 
-        /* $$ = NULL; */
-        }
-    | lista_parametros TK_OC_OR parametro {
-        /* $$ = $1;*/
-        /* asd_add_child($$, $3); */
-    }
-    | parametro  { 
-        /* $$ = $1 */
-        }
+    empty 
+    | lista_parametros TK_OC_OR parametro 
+    | parametro
     ;
 
 parametro:
@@ -211,13 +192,13 @@ expressao_precedencia_1:
 
 literal: 
     TK_LIT_INT 
-    | TK_LIT_FLOAT
+    | TK_LIT_FLOAT 
     ;
 
 operandos_simples:
         literal { $$ = asd_new($1->label); }
     |   TK_IDENTIFICADOR { $$ = asd_new($1.valor_token); }
-    |   chamada_funcao
+    |   chamada_funcao { $$ = $1; }
     ;
 
 %%
