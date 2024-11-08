@@ -125,11 +125,15 @@ inicializacao_opcional:
     ;
 
 atribuicao:
-    TK_IDENTIFICADOR '=' expressao 
+    TK_IDENTIFICADOR '=' expressao { 
+        $$ = asd_new("="); 
+        asd_add_child($$, asd_new($1.valor_token)); 
+        asd_add_child($$, $3);
+    }
     ;
 
 operacao_retorno: 
-    TK_PR_RETURN expressao 
+    TK_PR_RETURN expressao { $$ = asd_new("return"); asd_add_child($$, $2); }
     ;
 
 chamada_funcao: 
