@@ -113,9 +113,10 @@ parametro:
     ;
 
 bloco_comandos: 
-    '{' comandos '}' 
+    '{' comandos '}' {  $$ = $2; }
     ;
 
+/* lista: provavelmente a recursão deve ser a direita */
 comandos: 
     empty
     | comandos comando_simples 
@@ -123,17 +124,18 @@ comandos:
 
 comando_simples: 
     declaracao_variavel ';'
-    | atribuicao ';'
-    | fluxo_controle ';'
-    | operacao_retorno ';'
-    | bloco_comandos ';'
-    | chamada_funcao ';' 
+    | atribuicao ';' {  $$ = $1; }
+    | fluxo_controle ';' {  $$ = $1; }
+    | operacao_retorno ';' {  $$ = $1; }
+    | bloco_comandos ';' {  $$ = $1; }
+    | chamada_funcao ';'  {  $$ = $1; }
     ;
 
 declaracao_variavel: 
     tipo lista_variaveis 
     ;
 
+/* lista: provavelmente a recursão deve ser a direita */
 lista_variaveis: 
     lista_variaveis ',' TK_IDENTIFICADOR inicializacao_opcional
     | TK_IDENTIFICADOR inicializacao_opcional 
@@ -145,93 +147,120 @@ inicializacao_opcional:
     ;
 
 atribuicao:
-    TK_IDENTIFICADOR '=' expressao 
+    TK_IDENTIFICADOR '=' expressao  {
+        $$ = asd_new("test_atribuicao"); asd_add_child($$, $1); asd_add_child($$, $3);
+    }
     ;
 
 operacao_retorno: 
-    TK_PR_RETURN expressao 
+    TK_PR_RETURN expressao {
+        $$ = asd_new("test_return"); asd_add_child($$, $2);
+    }
     ;
 
 chamada_funcao: 
-    TK_IDENTIFICADOR '(' lista_argumentos ')' 
+    TK_IDENTIFICADOR '(' lista_argumentos ')' {
+        $$ = asd_new("test_chamada_funcao"); asd_add_child($$, asd_new_lexico($1)); asd_add_child($$, $3);
+    }
     ;
 
+/* lista: provavelmente a recursão deve ser a direita */
 lista_argumentos: 
     lista_argumentos ',' expressao
     | expressao 
     ;
 
 fluxo_controle:
-    TK_PR_IF '(' expressao ')' bloco_comandos
-    | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos
-    | TK_PR_WHILE '(' expressao ')' bloco_comandos
+    TK_PR_IF '(' expressao ')' bloco_comandos {
+        $$ = asd_new("test_if"); asd_add_child($$, $3); asd_add_child($$, $5);
+    }
+    | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos {
+        $$ = asd_new("test_if_else"); asd_add_child($$, $3); asd_add_child($$, $5); asd_add_child($$, $7);
+    }
+    | TK_PR_WHILE '(' expressao ')' bloco_comandos {
+        $$ = asd_new("test_while"); asd_add_child($$, $3); asd_add_child($$, $5);
+    }
     ;
 
 expressao:
     expressao_precedencia_6 { $$ = $1; }
-    | expressao TK_OC_OR expressao_precedencia_6
+    | expressao TK_OC_OR expressao_precedencia_6 {
+        $$ = asd_new("test_or"); asd_add_child($$, $1); asd_add_child($$, $3);
+    }
     ;
 
 expressao_precedencia_6:
     expressao_precedencia_5 { $$ = $1; }
-    | expressao_precedencia_6 TK_OC_AND expressao_precedencia_5
+    | expressao_precedencia_6 TK_OC_AND expressao_precedencia_5 {
+        $$ = asd_new("test_and"); asd_add_child($$, $1); asd_add_child($$, $3);
+    }
     ;
 
 expressao_precedencia_5:
     expressao_precedencia_4 { $$ = $1; }
-    | expressao_precedencia_5 TK_OC_EQ expressao_precedencia_4
-    | expressao_precedencia_5 TK_OC_NE expressao_precedencia_4
+    | expressao_precedencia_5 TK_OC_EQ expressao_precedencia_4 {
+        $$ = asd_new("test_eq"); asd_add_child($$, $1); asd_add_child($$, $3);
+    }
+    | expressao_precedencia_5 TK_OC_NE expressao_precedencia_4 {
+        $$ = asd_new("test_neq"); asd_add_child($$, $1); asd_add_child($$, $3);
+    }
     ;
 
 expressao_precedencia_4:
     expressao_precedencia_3 { $$ = $1; }
-    | expressao_precedencia_4 '<' expressao_precedencia_3
-    | expressao_precedencia_4 '>' expressao_precedencia_3
-    | expressao_precedencia_4 TK_OC_LE expressao_precedencia_3
-    | expressao_precedencia_4 TK_OC_GE expressao_precedencia_3
+    | expressao_precedencia_4 '<' expressao_precedencia_3 {
+        $$ = asd_new("test_lt"); asd_add_child($$, $1); asd_add_child($$, $3);
+    }
+    | expressao_precedencia_4 '>' expressao_precedencia_3 {
+        $$ = asd_new("test_gt"); asd_add_child($$, $1); asd_add_child($$, $3);
+    }
+    | expressao_precedencia_4 TK_OC_LE expressao_precedencia_3 {
+        $$ = asd_new("test_leq"); asd_add_child($$, $1); asd_add_child($$, $3);
+    }
+    | expressao_precedencia_4 TK_OC_GE expressao_precedencia_3 {
+        $$ = asd_new("test_geq"); asd_add_child($$, $1); asd_add_child($$, $3);
+    }
     ;
 
 expressao_precedencia_3:
     expressao_precedencia_2 { $$ = $1; }
-    | expressao_precedencia_3 '+' expressao_precedencia_2
-    | expressao_precedencia_3 '-' expressao_precedencia_2
+    | expressao_precedencia_3 '+' expressao_precedencia_2 {
+        $$ = asd_new("test_sum"); asd_add_child($$, $1); asd_add_child($$, $3);
+    }
+    | expressao_precedencia_3 '-' expressao_precedencia_2 {
+        $$ = asd_new("test_sub"); asd_add_child($$, $1); asd_add_child($$, $3);
+    }
     ;
 
 expressao_precedencia_2:
     expressao_precedencia_1 {  $$ = $1; }
-    | expressao_precedencia_2 '*' expressao_precedencia_1
-    | expressao_precedencia_2 '/' expressao_precedencia_1
-    | expressao_precedencia_2 '%' expressao_precedencia_1
+    | expressao_precedencia_2 '*' expressao_precedencia_1 { 
+        $$ = asd_new("test_mult"); asd_add_child($$, $1); asd_add_child($$, $3); 
+        }
+    | expressao_precedencia_2 '/' expressao_precedencia_1 {
+        $$ = asd_new("test_div"); asd_add_child($$, $1); asd_add_child($$, $3);
+    }
+    | expressao_precedencia_2 '%' expressao_precedencia_1 {
+        $$ = asd_new("test_mod"); asd_add_child($$, $1); asd_add_child($$, $3);
+    }
     ;
 
 expressao_precedencia_1:
     operandos_simples { $$ = $1; }
-    | '(' expressao ')' { $$ = $2; }
+    | '(' expressao ')' { $$ = asd_new("test_parent"); asd_add_child($$, $2); }
     | '-' expressao_precedencia_1
     | '!' expressao_precedencia_1 
     ;
 
 literal: 
-    TK_LIT_INT { 
-        /* $$ = asd_new_lexico($1); */
-        $$ = asd_new("test_int"); 
-        }
-    | TK_LIT_FLOAT { 
-        /* $$ = asd_new_lexico($1); */ 
-        $$ = asd_new("test_float"); 
-        }
+    TK_LIT_INT { $$ = asd_new("test_int"); }
+    | TK_LIT_FLOAT { $$ = asd_new("test_float"); }
     ;
 
 operandos_simples:
-        literal { 
-            /* $$ = asd_new_lexico($1); */
-            $$ = asd_new("test_literal"); 
-            }
-    |   TK_IDENTIFICADOR { 
-            $$ = asd_new("test_identificador"); 
-            /* $$ = asd_new_lexico($1); */ 
-        }
-    |   chamada_funcao
+        literal { $$ = asd_new("test_literal"); }
+    |   TK_IDENTIFICADOR { $$ = asd_new("test_identificador"); }
+    |   chamada_funcao { $$ = $1; }
     ;
 
 %%
