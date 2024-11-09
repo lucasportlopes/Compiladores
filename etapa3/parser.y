@@ -56,7 +56,7 @@ extern int get_line_number();
 %type<arvore> programa
 %type<arvore> literal
 %type<arvore> lista_argumentos
-
+%type<arvore> inicializacao_opcional
 %%
 
 programa: 
@@ -120,8 +120,8 @@ lista_variaveis:
     ;
 
 inicializacao_opcional: 
-    TK_OC_LE literal
-    | empty 
+    TK_OC_LE literal { $$ = asd_new("<="); asd_add_child($$, asd_new($2->label)); }
+    | empty { $$ = NULL; }
     ;
 
 atribuicao:
