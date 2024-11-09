@@ -57,6 +57,7 @@ extern int get_line_number();
 %type<arvore> literal
 %type<arvore> lista_argumentos
 %type<arvore> inicializacao_opcional
+%type<arvore> lista_variaveis
 %%
 
 programa: 
@@ -115,8 +116,10 @@ declaracao_variavel:
     ;
 
 lista_variaveis: 
-    lista_variaveis ',' TK_IDENTIFICADOR inicializacao_opcional
-    | TK_IDENTIFICADOR inicializacao_opcional 
+    TK_IDENTIFICADOR inicializacao_opcional { 
+    }
+    | lista_variaveis ',' TK_IDENTIFICADOR inicializacao_opcional { 
+    }
     ;
 
 inicializacao_opcional: 
