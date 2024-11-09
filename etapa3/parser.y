@@ -84,13 +84,13 @@ tipo:
 
 funcao: 
     cabecalho_funcao bloco_comandos {
-        $$ = asd_new("funcao");
+        $$ = asd_new("funcao"); // Acho que deveria ser $$ = $1; if ($2 != NULL) { asd_add_child($$, $2); }
         asd_add_child($$, $1);
         asd_add_child($$, $2);
     }
     ;
 
-cabecalho_funcao: 
+cabecalho_funcao: // Acredito que seja algo como:{ $$ = asd_new($1.valor_token); }
     TK_IDENTIFICADOR '=' lista_parametros '>' tipo {
         $$ = asd_new("cabecalho_funcao");
         if ($3 != NULL) {
@@ -123,7 +123,18 @@ bloco_comandos:
 /* lista: provavelmente a recursão deve ser a direita */
 comandos: 
     empty { $$ = NULL; }
-    | comandos comando_simples
+    | comando_simples comandos {
+        if ($1 != NULL && $2 != NULL) {
+            $$ = $1;
+            asd_add_child($$, $2);        
+        } else if ($1 != NULL) {
+            $$ = $1;
+        } else if ($2 != NULL) {
+            $$ = $2;
+        } else {
+            $$ = NULL;
+        }
+    }
     ;
 
 comando_simples: 
@@ -265,7 +276,7 @@ literal:
 
 operandos_simples:
         literal { $$ = $1; }
-    |   TK_IDENTIFICADOR { $$ = asd_new("identificador"); }
+    |   TK_IDENTIFICADOR { $$ = asd_new("identificador"); } // Aqui não seria o valor? 
     |   chamada_funcao { $$ = $1; }
     ;
 
