@@ -63,16 +63,17 @@ extern void *arvore;
 %%
 
 programa: 
-    lista_funcoes { 
-        $$ = $1;  arvore = $$;
-        }
+    lista_funcoes { arvore = $$; }
     ;
 
 lista_funcoes:
     empty { $$ = NULL; }
-    | lista_funcoes funcao {
-        $$ = $1;
-        asd_add_child($$, $2);
+    | funcao lista_funcoes {
+        $$ = asd_new("lista_funcoes");
+        asd_add_child($$, $1);
+        if ($2 != NULL) {
+            asd_add_child($$, $2);
+        }
     }
     ;
 
@@ -84,34 +85,39 @@ tipo:
 
 funcao: 
     cabecalho_funcao bloco_comandos {
-        $$ = asd_new("funcao"); // Acho que deveria ser $$ = $1; if ($2 != NULL) { asd_add_child($$, $2); }
-        asd_add_child($$, $1);
-        asd_add_child($$, $2);
+        $$ = $1;
+        if ($2 != NULL) {
+            asd_add_child($$, $2);
+        }
     }
     ;
 
-cabecalho_funcao: // Acredito que seja algo como:{ $$ = asd_new($1.valor_token); }
+cabecalho_funcao:
     TK_IDENTIFICADOR '=' lista_parametros '>' tipo {
-        $$ = asd_new("cabecalho_funcao");
+        $$ = asd_new($1.valor_token);
         if ($3 != NULL) {
             asd_add_child($$, $3);
         }
-        /* asd_add_child($$, asd_new($5)); */
     }
     ;
 
 lista_parametros: 
     empty { $$ = NULL; }
-    | lista_parametros TK_OC_OR parametro {
-        $$ = $1;
-        asd_add_child($$, $3);
+    |
+    parametro TK_OC_OR lista_parametros {
+        $$ = asd_new($1->label);
+        if ($3 != NULL) {
+            asd_add_child($$, $3);
+        }
     } 
-    | parametro {  $$ = $1; }
+    | parametro {  
+        $$ = asd_new($1->label);
+    }
     ;
 
 parametro:
     TK_IDENTIFICADOR '<' '-' tipo { 
-        $$ = asd_new("param"); 
+        $$ = asd_new($1.valor_token); 
         /* asd_add_child($$, asd_new($4)); */
     }
     ;
@@ -120,7 +126,6 @@ bloco_comandos:
     '{' comandos '}' {  $$ = $2; }
     ;
 
-/* lista: provavelmente a recursão deve ser a direita */
 comandos: 
     empty { $$ = NULL; }
     | comando_simples comandos {
@@ -150,17 +155,20 @@ declaracao_variavel:
     tipo lista_variaveis { $$ = $2; };
     ;
 
-/* lista: provavelmente a recursão deve ser a direita */
-lista_variaveis: 
-    lista_variaveis ',' TK_IDENTIFICADOR inicializacao_opcional { 
-        $$ = $1; 
-        asd_add_child($$, asd_new($3.valor_token));
+lista_variaveis:
+    TK_IDENTIFICADOR inicializacao_opcional ',' lista_variaveis {
+        $$ = asd_new("lista_variaveis");
+        asd_add_child($$, asd_new($1.valor_token));
+        if ($2 != NULL) {
+            asd_add_child($$, $2);
+        }
         if ($4 != NULL) {
             asd_add_child($$, $4);
         }
     }
-    | TK_IDENTIFICADOR inicializacao_opcional { 
-        $$ = asd_new($1.valor_token); 
+    | TK_IDENTIFICADOR inicializacao_opcional {
+        $$ = asd_new("lista_variaveis");
+        asd_add_child($$, asd_new($1.valor_token));
         if ($2 != NULL) {
             asd_add_child($$, $2);
         }
@@ -194,8 +202,15 @@ chamada_funcao: // TODO
     ;
 
 lista_argumentos:
-    expressao { $$ = $1; }
-    | lista_argumentos ',' expressao { $$ = $1; asd_add_child($$, $3); }
+    expressao { 
+        $$ = asd_new("lista_argumentos"); 
+        asd_add_child($$, $1); 
+    }
+    | expressao ',' lista_argumentos { 
+        $$ = asd_new("lista_argumentos"); 
+        asd_add_child($$, $1); 
+        asd_add_child($$, $3); 
+    }
     ;
 
 fluxo_controle: // Acredito que faça sentido mantermos essas funções maiores em blocos de códigos e não tudo na mesma linha
@@ -270,13 +285,13 @@ expressao_precedencia_1:
     ;
 
 literal: 
-    TK_LIT_INT { $$ = asd_new("int"); }
-    | TK_LIT_FLOAT { $$ = asd_new("float"); }
+    TK_LIT_INT { $$ = asd_new($1.valor_token); }
+    | TK_LIT_FLOAT { $$ = asd_new($1.valor_token); }
     ;
 
 operandos_simples:
         literal { $$ = $1; }
-    |   TK_IDENTIFICADOR { $$ = asd_new("identificador"); } // Aqui não seria o valor? 
+    |   TK_IDENTIFICADOR { $$ = asd_new($1.valor_token); }
     |   chamada_funcao { $$ = $1; }
     ;
 

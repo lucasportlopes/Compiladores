@@ -21,10 +21,19 @@ lex.yy.o: lex.yy.c
 parser.tab.o: parser.tab.c
 	gcc -c parser.tab.c
 
+graph: saida.dot
+	dot -Tpng saida.dot -o result.png
+
+run: 
+	make clean
+	make
+	cat test.txt | ./$(ETAPA)
+	make graph
+
 tar:
 	tar cvzf $(ETAPA).tgz main.c scanner.l parser.y asd.c asd.h Makefile
 
 .PHONY: clean
 
 clean:
-	rm -f *.o lex.yy.c $(ETAPA) parser.tab.* scanner.lex.c saida.dot
+	rm -f *.o lex.yy.c $(ETAPA) parser.tab.* scanner.lex.c saida.dot result.png
