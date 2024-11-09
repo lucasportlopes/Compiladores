@@ -120,7 +120,7 @@ lista_variaveis:
     ;
 
 inicializacao_opcional: 
-    TK_OC_LE literal { $$ = asd_new("<="); asd_add_child($$, asd_new($2->label)); }
+    TK_OC_LE literal { $$ = asd_new("<="); asd_add_child($$, asd_new($2->label)); } // Fiquei em duvida se chama assim mesmo
     | empty { $$ = NULL; }
     ;
 
@@ -136,7 +136,7 @@ operacao_retorno:
     TK_PR_RETURN expressao { $$ = asd_new("return"); asd_add_child($$, $2); }
     ;
 
-chamada_funcao: 
+chamada_funcao: // TODO
     TK_IDENTIFICADOR '(' lista_argumentos ')' 
     ;
 
@@ -145,7 +145,7 @@ lista_argumentos:
     | lista_argumentos ',' expressao { $$ = $1; asd_add_child($$, $3); }
     ;
 
-fluxo_controle:
+fluxo_controle: // Acredito que faça sentido mantermos essas funções maiores em blocos de códigos e não tudo na mesma linha
     TK_PR_IF '(' expressao ')' bloco_comandos {
         $$ = asd_new("if"); 
         asd_add_child($$, $3); 
