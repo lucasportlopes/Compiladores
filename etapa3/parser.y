@@ -98,27 +98,36 @@ bloco_comandos:
     ;
 
 comandos: 
-    empty
-    | comandos comando_simples 
+    empty { $$ = NULL; }
+    | comandos comando_simples
     ;
 
 comando_simples: 
-    declaracao_variavel ';'
-    | atribuicao ';'
-    | fluxo_controle ';'
-    | operacao_retorno ';'
-    | bloco_comandos ';'
-    | chamada_funcao ';' 
+    declaracao_variavel ';' { $$ = $1; }
+    | atribuicao ';' { $$ = $1; }
+    | fluxo_controle ';' { $$ = $1; }
+    | operacao_retorno ';' { $$ = $1; }
+    | bloco_comandos ';' { $$ = $1; }
+    | chamada_funcao ';' { $$ = $1; }
     ;
 
 declaracao_variavel: 
-    tipo lista_variaveis 
+    tipo lista_variaveis { $$ = $2; };
     ;
 
 lista_variaveis: 
-    TK_IDENTIFICADOR inicializacao_opcional { 
+    lista_variaveis ',' TK_IDENTIFICADOR inicializacao_opcional { 
+        $$ = $1; 
+        asd_add_child($$, asd_new($3.valor_token));
+        if ($4 != NULL) {
+            asd_add_child($$, $4);
+        }
     }
-    | lista_variaveis ',' TK_IDENTIFICADOR inicializacao_opcional { 
+    | TK_IDENTIFICADOR inicializacao_opcional { 
+        $$ = asd_new($1.valor_token); 
+        if ($2 != NULL) {
+            asd_add_child($$, $2);
+        }
     }
     ;
 
