@@ -60,7 +60,6 @@ extern void *arvore;
 %type<arvore_t> lista_argumentos
 %type<arvore_t> inicializacao_opcional
 %type<arvore_t> lista_variaveis
-
 %%
 
 programa: 
@@ -70,32 +69,51 @@ programa:
     ;
 
 lista_funcoes:
-    empty 
-    | lista_funcoes funcao
+    empty { $$ = NULL; }
+    | lista_funcoes funcao {
+        $$ = $1;
+        asd_add_child($$, $2);
+    }
     ;
 
 empty: ;
 
 tipo: 
-    TK_PR_INT | TK_PR_FLOAT 
+    TK_PR_INT | TK_PR_FLOAT
     ;
 
 funcao: 
-    cabecalho_funcao bloco_comandos
+    cabecalho_funcao bloco_comandos {
+        $$ = asd_new("funcao");
+        asd_add_child($$, $1);
+        asd_add_child($$, $2);
+    }
     ;
 
 cabecalho_funcao: 
-    TK_IDENTIFICADOR '=' lista_parametros '>' tipo
+    TK_IDENTIFICADOR '=' lista_parametros '>' tipo {
+        $$ = asd_new("cabecalho_funcao");
+        if ($3 != NULL) {
+            asd_add_child($$, $3);
+        }
+        /* asd_add_child($$, asd_new($5)); */
+    }
     ;
 
 lista_parametros: 
-    empty 
-    | lista_parametros TK_OC_OR parametro 
-    | parametro
+    empty { $$ = NULL; }
+    | lista_parametros TK_OC_OR parametro {
+        $$ = $1;
+        asd_add_child($$, $3);
+    } 
+    | parametro {  $$ = $1; }
     ;
 
 parametro:
-    TK_IDENTIFICADOR '<' '-' tipo 
+    TK_IDENTIFICADOR '<' '-' tipo { 
+        $$ = asd_new("param"); 
+        /* asd_add_child($$, asd_new($4)); */
+    }
     ;
 
 bloco_comandos: 
@@ -156,7 +174,12 @@ operacao_retorno:
     ;
 
 chamada_funcao: // TODO
-    TK_IDENTIFICADOR '(' lista_argumentos ')' 
+    TK_IDENTIFICADOR '(' lista_argumentos ')' {
+        $$ = asd_new("chamada_funcao");
+        if ($3 != NULL) {
+            asd_add_child($$, $3);
+        }
+    }
     ;
 
 lista_argumentos:
@@ -236,13 +259,13 @@ expressao_precedencia_1:
     ;
 
 literal: 
-    TK_LIT_INT { $$ = asd_new($1.valor_token); }
-    | TK_LIT_FLOAT { $$ = asd_new($1.valor_token); }
+    TK_LIT_INT { $$ = asd_new("int"); }
+    | TK_LIT_FLOAT { $$ = asd_new("float"); }
     ;
 
 operandos_simples:
         literal { $$ = $1; }
-    |   TK_IDENTIFICADOR { $$ = asd_new($1.valor_token); }
+    |   TK_IDENTIFICADOR { $$ = asd_new("identificador"); }
     |   chamada_funcao { $$ = $1; }
     ;
 
