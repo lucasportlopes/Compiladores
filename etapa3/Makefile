@@ -31,9 +31,9 @@ run:
 	make graph
 
 tar:
-	tar cvzf $(ETAPA).tgz main.c scanner.l parser.y asd.c asd.h Makefile
+	tar cvzf $(ETAPA).tgz main.c scanner.l parser.y asd.c asd.h Makefile output2dot.sh
 
 .PHONY: clean
 
 clean:
-	rm -f *.o lex.yy.c $(ETAPA) parser.tab.* scanner.lex.c saida.dot result.png
+	rm -f *.o lex.yy.c $(ETAPA) parser.tab.* scanner.lex.c saida.dot result.png saida

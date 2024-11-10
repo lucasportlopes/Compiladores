@@ -3,22 +3,20 @@
 
 typedef struct asd_tree {
   char *label;
-  // valor_lexico_t valor_lexico;
   int number_of_children;
   struct asd_tree **children;
 } asd_tree_t;
 
 typedef struct valor_lexico {
     int linha;
-    int tipo_token; // validar se é int mesmo
-    char *valor_token; // usar strdupt de yytext
+    int tipo_token;
+    char *valor_token;
 } valor_lexico_t;
 
 /*
  * Função asd_new, cria um nó sem filhos com o label informado.
  */
 asd_tree_t *asd_new(const char *label);
-// asd_tree_t *asd_new_lexico(valor_lexico_t valor_lexico);
 
 /*
  * Função asd_tree, libera recursivamente o nó e seus filhos.

@@ -16,18 +16,6 @@ asd_tree_t *asd_new(const char *label)
   return ret;
 }
 
-// asd_tree_t *asd_new_lexico(valor_lexico_t valor_lexico)
-// {
-//   asd_tree_t *ret = NULL;
-//   ret = calloc(1, sizeof(asd_tree_t));
-//   if (ret != NULL){
-//     ret->valor_lexico = valor_lexico;
-//     ret->number_of_children = 0;
-//     ret->children = NULL;
-//   }
-//   return ret;
-// }
-
 void asd_free(asd_tree_t *tree)
 {
   if (tree != NULL){
