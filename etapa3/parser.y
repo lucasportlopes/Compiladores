@@ -66,6 +66,7 @@ programa:
     lista_funcoes { $$ = $1; arvore = $$; }
     ;
 
+// Revisar
 lista_funcoes:
     empty { $$ = NULL; }
     | funcao lista_funcoes {
@@ -83,6 +84,7 @@ tipo:
     TK_PR_INT | TK_PR_FLOAT
     ;
 
+// Revisar
 funcao: 
     cabecalho_funcao bloco_comandos {
         $$ = $1;
@@ -92,6 +94,7 @@ funcao:
     }
     ;
 
+// Revisar
 cabecalho_funcao:
     TK_IDENTIFICADOR '=' lista_parametros '>' tipo {
         $$ = asd_new($1.valor_token);
@@ -101,6 +104,7 @@ cabecalho_funcao:
     }
     ;
 
+// Revisar
 lista_parametros: 
     empty { $$ = NULL; }
     |
@@ -154,6 +158,7 @@ declaracao_variavel:
     tipo lista_variaveis { $$ = $2; };
     ;
 
+// Revisar
 lista_variaveis:
     TK_IDENTIFICADOR inicializacao_opcional ',' lista_variaveis {
         $$ = asd_new("lista_variaveis");
@@ -179,6 +184,7 @@ inicializacao_opcional:
     | empty { $$ = NULL; }
     ;
 
+// Revisar
 atribuicao:
     TK_IDENTIFICADOR '=' expressao { 
         $$ = asd_new("="); 
@@ -191,6 +197,7 @@ operacao_retorno:
     TK_PR_RETURN expressao { $$ = asd_new("return"); asd_add_child($$, $2); }
     ;
 
+// Revisar
 chamada_funcao:
     TK_IDENTIFICADOR '(' lista_argumentos ')' {
         $$ = asd_new("chamada_funcao");

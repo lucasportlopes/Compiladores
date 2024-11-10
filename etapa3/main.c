@@ -7,8 +7,8 @@ void exporta (void *arvore);
 int main (int argc, char **argv)
 {
   int ret = yyparse(); 
-  asd_print(arvore);
-  asd_print_graphviz(arvore);
+  asd_print(arvore); // TODO: Remover
+  asd_print_graphviz(arvore); // TODO: Remover
   exporta (arvore);
   asd_free(arvore);
   yylex_destroy();
