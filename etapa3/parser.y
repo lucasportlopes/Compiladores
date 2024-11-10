@@ -63,7 +63,7 @@ extern void *arvore;
 %%
 
 programa: 
-    lista_funcoes { arvore = $$; }
+    lista_funcoes { $$ = $1; arvore = $$; }
     ;
 
 lista_funcoes:
@@ -118,7 +118,6 @@ lista_parametros:
 parametro:
     TK_IDENTIFICADOR '<' '-' tipo { 
         $$ = asd_new($1.valor_token); 
-        /* asd_add_child($$, asd_new($4)); */
     }
     ;
 
@@ -176,7 +175,7 @@ lista_variaveis:
     ;
 
 inicializacao_opcional: 
-    TK_OC_LE literal { $$ = asd_new("<="); asd_add_child($$, asd_new($2->label)); } // Fiquei em duvida se chama assim mesmo
+    TK_OC_LE literal { $$ = asd_new("<="); asd_add_child($$, asd_new($2->label)); }
     | empty { $$ = NULL; }
     ;
 
@@ -192,7 +191,7 @@ operacao_retorno:
     TK_PR_RETURN expressao { $$ = asd_new("return"); asd_add_child($$, $2); }
     ;
 
-chamada_funcao: // TODO
+chamada_funcao:
     TK_IDENTIFICADOR '(' lista_argumentos ')' {
         $$ = asd_new("chamada_funcao");
         if ($3 != NULL) {
@@ -203,17 +202,15 @@ chamada_funcao: // TODO
 
 lista_argumentos:
     expressao { 
-        $$ = asd_new("lista_argumentos"); 
-        asd_add_child($$, $1); 
+        $$ = $1;
     }
     | expressao ',' lista_argumentos { 
-        $$ = asd_new("lista_argumentos"); 
-        asd_add_child($$, $1); 
+        $$ = $1;
         asd_add_child($$, $3); 
     }
     ;
 
-fluxo_controle: // Acredito que faça sentido mantermos essas funções maiores em blocos de códigos e não tudo na mesma linha
+fluxo_controle:
     TK_PR_IF '(' expressao ')' bloco_comandos {
         $$ = asd_new("if"); 
         asd_add_child($$, $3); 
