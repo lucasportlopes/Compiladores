@@ -185,7 +185,6 @@ inicializacao_opcional:
     | empty { $$ = NULL; }
     ;
 
-// Revisar
 atribuicao:
     TK_IDENTIFICADOR '=' expressao { 
         $$ = asd_new("="); 
