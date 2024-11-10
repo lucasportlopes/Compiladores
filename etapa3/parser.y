@@ -4,6 +4,7 @@
 int yylex(void);
 void yyerror (char const *mensagem);
 #include <stdio.h>
+#include <string.h>
 extern int get_line_number();
 extern void *arvore;
 %}
@@ -197,12 +198,21 @@ operacao_retorno:
     TK_PR_RETURN expressao { $$ = asd_new("return"); asd_add_child($$, $2); }
     ;
 
-// Revisar
 chamada_funcao:
     TK_IDENTIFICADOR '(' lista_argumentos ')' {
-        $$ = asd_new("chamada_funcao");
-        if ($3 != NULL) {
+        const char *CALL = "call";
+        size_t size = strlen(CALL) + strlen($1.valor_token) + 2; // +2 para o \0 e o espaço
+        char *result = (char *)malloc(size);
+
+        if (result) {
+            sprintf(result, "%s %s", CALL, $1.valor_token); 
+
+            $$ = asd_new(result);
             asd_add_child($$, $3);
+            
+            free(result);
+        } else {
+            fprintf(stderr, "Erro na alocacao de memoria! \n");
         }
     }
     ;
