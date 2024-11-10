@@ -201,16 +201,16 @@ operacao_retorno:
 chamada_funcao:
     TK_IDENTIFICADOR '(' lista_argumentos ')' {
         const char *CALL = "call";
-        size_t size = strlen(CALL) + strlen($1.valor_token) + 2; // +2 para o \0 e o espaço
-        char *result = (char *)malloc(size);
+        size_t size = strlen(CALL) + strlen($1.valor_token) + 2;
+        char *function = (char *)malloc(size);
 
-        if (result) {
-            sprintf(result, "%s %s", CALL, $1.valor_token); 
+        if (function) {
+            sprintf(function, "%s %s", CALL, $1.valor_token); 
 
-            $$ = asd_new(result);
+            $$ = asd_new(function);
             asd_add_child($$, $3);
             
-            free(result);
+            free(function);
         } else {
             fprintf(stderr, "Erro na alocacao de memoria! \n");
         }
