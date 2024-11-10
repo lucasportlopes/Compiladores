@@ -59,7 +59,6 @@ extern void *arvore;
 %type<arvore_t> programa
 %type<arvore_t> literal
 %type<arvore_t> lista_argumentos
-%type<arvore_t> inicializacao_opcional
 %type<arvore_t> lista_variaveis
 %%
 
@@ -108,8 +107,7 @@ cabecalho_funcao:
 // Revisar
 lista_parametros: 
     empty { $$ = NULL; }
-    |
-    parametro TK_OC_OR lista_parametros {
+    | parametro TK_OC_OR lista_parametros {
         $$ = asd_new($1->label);
         if ($3 != NULL) {
             asd_add_child($$, $3);
@@ -159,30 +157,22 @@ declaracao_variavel:
     tipo lista_variaveis { $$ = $2; };
     ;
 
-// Revisar
 lista_variaveis:
-    TK_IDENTIFICADOR inicializacao_opcional ',' lista_variaveis {
-        $$ = asd_new("lista_variaveis");
-        asd_add_child($$, asd_new($1.valor_token));
-        if ($2 != NULL) {
-            asd_add_child($$, $2);
-        }
-        if ($4 != NULL) {
-            asd_add_child($$, $4);
+    TK_IDENTIFICADOR TK_OC_LE literal ',' lista_variaveis {
+        $$ = asd_new("<="); 
+        asd_add_child($$, asd_new($1.valor_token)); 
+        asd_add_child($$, asd_new($3->label)); 
+        if($5 != NULL) {
+            asd_add_child($$, $5);
         }
     }
-    | TK_IDENTIFICADOR inicializacao_opcional {
-        $$ = asd_new("lista_variaveis");
-        asd_add_child($$, asd_new($1.valor_token));
-        if ($2 != NULL) {
-            asd_add_child($$, $2);
-        }
+    | TK_IDENTIFICADOR ',' lista_variaveis { $$ = $3; }
+    | TK_IDENTIFICADOR TK_OC_LE literal {
+        $$ = asd_new("<=");
+        asd_add_child($$, asd_new($1.valor_token)); 
+        asd_add_child($$, asd_new($3->label));
     }
-    ;
-
-inicializacao_opcional: 
-    TK_OC_LE literal { $$ = asd_new("<="); asd_add_child($$, asd_new($2->label)); }
-    | empty { $$ = NULL; }
+    | TK_IDENTIFICADOR { $$ = NULL; }
     ;
 
 atribuicao:
