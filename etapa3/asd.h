@@ -1,6 +1,11 @@
 #ifndef _ARVORE_H_
 #define _ARVORE_H_
 
+typedef enum {
+  IDENTIFICADOR,
+  LITERAL,
+} tipo_lexico_enum;
+
 typedef struct asd_tree {
   char *label;
   int number_of_children;
@@ -9,7 +14,7 @@ typedef struct asd_tree {
 
 typedef struct valor_lexico {
     int linha;
-    int tipo_token;
+    tipo_lexico_enum tipo_token;
     char *valor_token;
 } valor_lexico_t;
 
