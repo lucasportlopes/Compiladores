@@ -95,8 +95,15 @@ void asd_print_graphviz(asd_tree_t *tree)
   }
 }
 
-// TODO: Revisar essa função
 void exporta(asd_tree_t *tree)
 {
-  asd_print_graphviz(tree);
+  int i;
+  if (tree != NULL) {
+    fprintf(stdout, "%p [label=\"%s\"];\n", tree, tree->label);
+    
+    for (i = 0; i < tree->number_of_children; i++) {
+        fprintf(stdout, "%p, %p\n", tree, tree->children[i]);
+        exporta(tree->children[i]);
+    }
+  }
 }

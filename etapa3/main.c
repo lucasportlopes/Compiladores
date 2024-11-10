@@ -10,6 +10,7 @@ int main (int argc, char **argv)
   asd_print(arvore);
   asd_print_graphviz(arvore);
   exporta (arvore);
+  asd_free(arvore);
   yylex_destroy();
   return ret;
 }
