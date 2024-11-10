@@ -66,25 +66,16 @@ programa:
     lista_funcoes { $$ = $1; arvore = $$; }
     ;
 
-// Revisar
 lista_funcoes:
     empty { $$ = NULL; }
     | funcao lista_funcoes {
-        $$ = asd_new("lista_funcoes");
-        asd_add_child($$, $1);
+        $$ = $1;
         if ($2 != NULL) {
             asd_add_child($$, $2);
         }
     }
     ;
 
-empty: ;
-
-tipo: 
-    TK_PR_INT | TK_PR_FLOAT
-    ;
-
-// Revisar
 funcao: 
     cabecalho_funcao bloco_comandos {
         $$ = $1;
@@ -94,34 +85,24 @@ funcao:
     }
     ;
 
-// Revisar
 cabecalho_funcao:
-    TK_IDENTIFICADOR '=' lista_parametros '>' tipo {
-        $$ = asd_new($1.valor_token);
-        if ($3 != NULL) {
-            asd_add_child($$, $3);
-        }
-    }
+    TK_IDENTIFICADOR '=' lista_parametros '>' tipo { $$ = asd_new($1.valor_token); }
     ;
 
-// Revisar
+empty: ;
+
+tipo: 
+    TK_PR_INT | TK_PR_FLOAT
+    ;
+
 lista_parametros: 
     empty { $$ = NULL; }
-    | parametro TK_OC_OR lista_parametros {
-        $$ = asd_new($1->label);
-        if ($3 != NULL) {
-            asd_add_child($$, $3);
-        }
-    } 
-    | parametro {  
-        $$ = asd_new($1->label);
-    }
+    | parametro TK_OC_OR lista_parametros { $$ = NULL; }
+    | parametro { $$ = NULL; }
     ;
 
 parametro:
-    TK_IDENTIFICADOR '<' '-' tipo { 
-        $$ = asd_new($1.valor_token); 
-    }
+    TK_IDENTIFICADOR '<' '-' tipo { $$ = NULL; }
     ;
 
 bloco_comandos: 
