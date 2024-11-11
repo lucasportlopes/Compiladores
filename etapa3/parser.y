@@ -18,22 +18,22 @@ extern void *arvore;
     asd_tree_t *arvore_t;
 }
 
-%token<valor_lexico> TK_PR_INT
-%token<valor_lexico> TK_PR_FLOAT
-%token<valor_lexico> TK_PR_IF
-%token<valor_lexico> TK_PR_ELSE
-%token<valor_lexico> TK_PR_WHILE
-%token<valor_lexico> TK_PR_RETURN
-%token<valor_lexico> TK_OC_LE
-%token<valor_lexico> TK_OC_GE
-%token<valor_lexico> TK_OC_EQ
-%token<valor_lexico> TK_OC_NE
-%token<valor_lexico> TK_OC_AND
-%token<valor_lexico> TK_OC_OR
+%token TK_PR_INT
+%token TK_PR_FLOAT
+%token TK_PR_IF
+%token TK_PR_ELSE
+%token TK_PR_WHILE
+%token TK_PR_RETURN
+%token TK_OC_LE
+%token TK_OC_GE
+%token TK_OC_EQ
+%token TK_OC_NE
+%token TK_OC_AND
+%token TK_OC_OR
 %token<valor_lexico> TK_IDENTIFICADOR
 %token<valor_lexico> TK_LIT_INT
 %token<valor_lexico> TK_LIT_FLOAT
-%token<valor_lexico> TK_ERRO
+%token TK_ERRO
 
 %type<arvore_t> operandos_simples
 %type<arvore_t> expressao_precedencia_1
