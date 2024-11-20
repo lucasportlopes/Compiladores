@@ -66,17 +66,8 @@ void symbol_table_free(symbol_table_t *table);
  * @param table Ponteiro para a tabela onde o símbolo será inserido.
  * @param key Nome (lexema) do símbolo.
  * @param content Ponteiro para o conteúdo associado ao símbolo.
- * @return 0 em caso de sucesso ou ERR_DECLARED se o símbolo já existir no escopo atual.
  */
-int symbol_table_insert(symbol_table_t *table, char *key, symbol_table_content_t *content);
-
-/**
- * @brief Procura um símbolo na tabela de símbolos atual.
- * @param table Ponteiro para a tabela onde será feita a busca.
- * @param key Nome (lexema) do símbolo a ser buscado.
- * @return Ponteiro para a entrada do símbolo encontrado ou NULL se não encontrado.
- */
-symbol_table_entry_t *symbol_table_lookup(symbol_table_t *table, const char *key);
+void symbol_table_insert(symbol_table_t *table, char *key, symbol_table_content_t *content);
 
 /**
  * @brief Procura um símbolo na tabela de símbolos e seus escopos pais.
@@ -85,14 +76,5 @@ symbol_table_entry_t *symbol_table_lookup(symbol_table_t *table, const char *key
  * @return Ponteiro para a entrada do símbolo encontrado ou NULL se não encontrado.
  */
 symbol_table_entry_t *symbol_table_find(symbol_table_t *table, const char *key);
-
-/**
- * @brief Adiciona uma nova entrada na tabela de símbolos.
- * @param table Ponteiro para a tabela de símbolos.
- * @param key Nome (lexema) do símbolo.
- * @param content Ponteiro para o conteúdo associado ao símbolo.
- * @return Ponteiro para a nova entrada adicionada ou NULL em caso de erro.
- */
-symbol_table_entry_t *symbol_table_add_entry(symbol_table_t *table, const char *key, symbol_table_content_t *content);
 
 #endif // _SYMBOL_TABLE_H_
