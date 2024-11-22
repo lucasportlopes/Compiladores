@@ -77,4 +77,6 @@ void symbol_table_insert(symbol_table_t *table, char *key, symbol_table_content_
  */
 symbol_table_entry_t *symbol_table_find(symbol_table_t *table, const char *key);
 
+symbol_table_content_t *create_symbol_content(int line, symbol_table_nature_t nature, symbol_table_type_t type);
+
 #endif // _SYMBOL_TABLE_H_
