@@ -8,6 +8,8 @@ int main (int argc, char **argv)
 {
   int ret = yyparse(); 
   exporta (arvore);
+  asd_print(arvore);
+  asd_print_graphviz(arvore);
   asd_free(arvore);
   yylex_destroy();
   return ret;

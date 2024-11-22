@@ -42,4 +42,6 @@ void asd_print(asd_tree_t *tree);
  * Função asd_print_graphviz, idem, em formato DOT
  */
 void asd_print_graphviz (asd_tree_t *tree);
+
+asd_tree_t *find_last_declaration(asd_tree_t *node);
 #endif //_ARVORE_H_

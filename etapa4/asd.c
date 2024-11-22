@@ -95,3 +95,18 @@ void exporta(asd_tree_t *tree)
     }
   }
 }
+
+asd_tree_t *find_last_declaration(asd_tree_t *node) {
+    if (node == NULL) {
+        return NULL;
+    }
+
+    for (int i = node->number_of_children - 1; i >= 0; i--) {
+        if (node->children[i] != NULL && strcmp(node->children[i]->label, "<=") == 0) {
+            return find_last_declaration(node->children[i]);
+        }
+    }
+
+    // se nenhum filho é uma declaração, então o nó encontrado é a única declaração
+    return node;
+}
