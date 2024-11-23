@@ -8,7 +8,7 @@ void yyerror (char const *mensagem);
 #include "symbol_stack.h"
 extern int get_line_number();
 extern void *arvore;
-symbol_stack_t *pilha_tabelas = NULL;
+extern void *stack;
 %}
 
 %define parse.error verbose
@@ -194,18 +194,18 @@ lista_variaveis:
     | TK_IDENTIFICADOR { $$ = NULL; }
     ;
 
-// TODO: Ajustar tipo
 atribuicao:
     TK_IDENTIFICADOR '=' expressao { 
-        // todo: verificar se identificador já foi declarado (percorrer toda a pilha até a base) -> ERR_UNDECLARED
-        symbol_table_content_t *content = symbol_stack_find(&pilha_tabelas, $1.valor_token);
+        symbol_table_content_t *content = symbol_stack_find(stack, $1.valor_token);
 
         if (content == NULL) {
             semantic_error(ERR_UNDECLARED, $1.valor_token, get_line_number());
+        } else if (content->nature == SYMBOL_NATURE_FUNCTION) {
+            semantic_error(ERR_FUNCTION, $1.valor_token, get_line_number());
         }
 
-        $$ = asd_new("=", TODO_TYPE); 
-        asd_add_child($$, asd_new($1.valor_token, TODO_TYPE)); 
+        $$ = asd_new("="); 
+        asd_add_child($$, asd_new($1.valor_token)); 
         asd_add_child($$, $3);
     }
     ;
@@ -214,7 +214,6 @@ operacao_retorno:
     TK_PR_RETURN expressao { $$ = asd_new("return", $2->type); asd_add_child($$, $2); }
     ;
 
-// Ajustar o tipo da chamada de função
 chamada_funcao:
     TK_IDENTIFICADOR '(' lista_argumentos ')' {
         const char *CALL = "call";
@@ -222,6 +221,14 @@ chamada_funcao:
         char *function = (char *)malloc(size);
 
         if (function) {
+            symbol_table_content_t *content = symbol_stack_find(stack, $1.valor_token);
+
+            if (content == NULL) {
+                semantic_error(ERR_UNDECLARED, $1.valor_token, get_line_number());
+            } else if (content->nature == SYMBOL_NATURE_VARIABLE) {
+                semantic_error(ERR_VARIABLE, $1.valor_token, get_line_number());
+            }
+
             sprintf(function, "%s %s", CALL, $1.valor_token); 
 
             $$ = asd_new(function, TODO_TYPE);
@@ -381,17 +388,19 @@ literal:
 
 operandos_simples:
         literal { $$ = $1; }
-    |   TK_IDENTIFICADOR { 
-        // procurar tipo na pilha de tabela de símbolos
+    |   TK_IDENTIFICADOR {
+            symbol_table_content_t *content = symbol_stack_find(stack, $1.valor_token);
 
-        $$ = asd_new($1.valor_token, TODO_TYPE); 
-        
-    } // TODO: Adicionar tipo
-    // na chamada_funcao não há inferência de tipos, mas é possível definir o tipo de acordo com a tabela, pois
-    // um tipo NULL aqui talvez quebre quando expressao_precedencia_1 avaliar para chamada_funcao
+            if (content == NULL) {
+                semantic_error(ERR_UNDECLARED, $1.valor_token, get_line_number());
+            } else if (content->nature == SYMBOL_NATURE_FUNCTION) {
+                semantic_error(ERR_FUNCTION, $1.valor_token, get_line_number());
+            }
+
+            $$ = asd_new($1.valor_token); 
+        }
     |   chamada_funcao { $$ = $1; }
     ;
-
 %%
 
 void yyerror(const char *error) {
