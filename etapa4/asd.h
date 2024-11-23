@@ -1,6 +1,8 @@
 #ifndef _ARVORE_H_
 #define _ARVORE_H_
 
+#include "symbol_table.h"
+
 typedef enum {
   IDENTIFICADOR,
   LITERAL,
@@ -10,6 +12,7 @@ typedef struct asd_tree {
   char *label;
   int number_of_children;
   struct asd_tree **children;
+  symbol_table_type_t type;
 } asd_tree_t;
 
 typedef struct valor_lexico {
@@ -21,7 +24,7 @@ typedef struct valor_lexico {
 /*
  * Função asd_new, cria um nó sem filhos com o label informado.
  */
-asd_tree_t *asd_new(const char *label);
+asd_new(const char *label, symbol_table_type_t type);
 
 /*
  * Função asd_tree, libera recursivamente o nó e seus filhos.

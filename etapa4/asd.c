@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "asd.h"
+#include "symbol_table.h"
 #define ARQUIVO_SAIDA "saida.dot"
 
-asd_tree_t *asd_new(const char *label)
+asd_tree_t *asd_new(const char *label, symbol_table_type_t type)
 {
   asd_tree_t *ret = NULL;
   ret = calloc(1, sizeof(asd_tree_t));
@@ -12,6 +13,7 @@ asd_tree_t *asd_new(const char *label)
     ret->label = strdup(label);
     ret->number_of_children = 0;
     ret->children = NULL;
+    ret->type = type;
   }
   return ret;
 }
