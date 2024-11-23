@@ -69,6 +69,7 @@ programa:
 lista_funcoes:
     empty { $$ = NULL; }
     | funcao lista_funcoes {
+        // inicia_pilha();
         $$ = $1;
         if ($2 != NULL) {
             asd_add_child($$, $2);
@@ -86,8 +87,12 @@ funcao:
     ;
 
 cabecalho_funcao:
-    TK_IDENTIFICADOR '=' lista_parametros '>' tipo { $$ = asd_new($1.valor_token); }
+    TK_IDENTIFICADOR '=' abre_escopo lista_parametros '>' tipo { $$ = asd_new($1.valor_token); }
     ;
+
+abre_escopo: ; {}
+
+fecha_escopo: ; {}
 
 empty: ;
 
@@ -105,8 +110,9 @@ parametro:
     TK_IDENTIFICADOR '<' '-' tipo { $$ = NULL; }
     ;
 
+// todo: criar bloco novo para função, diferenciando do bloco normal
 bloco_comandos: 
-    '{' comandos '}' {  $$ = $2; }
+    '{' abre_escopo comandos fecha_escopo '}' {  $$ = $2; }
     ;
 
 comandos: 
@@ -152,6 +158,7 @@ declaracao_variavel:
 
 lista_variaveis:
     TK_IDENTIFICADOR TK_OC_LE literal ',' lista_variaveis {
+        // todo: verificar se já foi declarado (apenas no escopo atual) -> ERR_DECLARED
         $$ = asd_new("<="); 
         asd_add_child($$, asd_new($1.valor_token)); 
         asd_add_child($$, asd_new($3->label)); 
@@ -161,6 +168,7 @@ lista_variaveis:
     }
     | TK_IDENTIFICADOR ',' lista_variaveis { $$ = $3; }
     | TK_IDENTIFICADOR TK_OC_LE literal {
+        // todo: verificar se já foi declarado (apenas no escopo atual) -> ERR_DECLARED
         $$ = asd_new("<=");
         asd_add_child($$, asd_new($1.valor_token)); 
         asd_add_child($$, asd_new($3->label));
@@ -170,6 +178,7 @@ lista_variaveis:
 
 atribuicao:
     TK_IDENTIFICADOR '=' expressao { 
+        // todo: verificar se identificador já foi declarado (percorrer toda a pilha até a base) -> ERR_UNDECLARED
         $$ = asd_new("="); 
         asd_add_child($$, asd_new($1.valor_token)); 
         asd_add_child($$, $3);
