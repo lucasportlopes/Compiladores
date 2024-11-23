@@ -2,11 +2,7 @@
 #define _SYMBOL_STACK_H_
 
 #include "symbol_table.h"
-
-typedef struct symbol_stack_t {
-    symbol_table_t *table;
-    struct symbol_stack_t *next;
-} symbol_stack_t;
+#include "types.h"
 
 symbol_stack_t *symbol_stack_create(symbol_table_t *table);
 

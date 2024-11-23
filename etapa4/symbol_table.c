@@ -91,14 +91,15 @@ void open_scope(symbol_stack_t **stack) {
         *stack = symbol_stack_create(table);
     } else {
         table->parent = (*stack)->table;
-        symbol_table_stack_push(table);    
+        // symbol_stack_push(table);    
+        printf("push\n");
     }
 }
 
 void close_scope() {
-    symbol_table_stack_pop();
+    //symbol_stack_pop();
+    printf("pop\n");
 }
-
 void semantic_error(int error_code, const char *identifier, int line) {
     if (error_code == ERR_UNDECLARED) {
         fprintf(stderr, "Semantic error (line %d): identifier '%s' not declared.\n", line, identifier);

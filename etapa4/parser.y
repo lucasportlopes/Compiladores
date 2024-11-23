@@ -5,10 +5,10 @@ int yylex(void);
 void yyerror (char const *mensagem);
 #include <stdio.h>
 #include <string.h>
-#include "symbol_table.h"
 #include "symbol_stack.h"
 extern int get_line_number();
 extern void *arvore;
+symbol_stack_t *pilha_tabelas = NULL;
 %}
 
 %define parse.error verbose
@@ -64,14 +64,17 @@ extern void *arvore;
 %type<arvore_t> lista_variaveis
 %%
 
-programa: 
-    lista_funcoes { $$ = $1; arvore = $$; }
+programa:
+    lista_funcoes { 
+        symbol_table_t *escopo_global = symbol_table_create(NULL);
+        pilha_tabelas = symbol_stack_create(escopo_global);
+        $$ = $1; arvore = $$; 
+    }
     ;
 
 lista_funcoes:
     empty { $$ = NULL; }
     | funcao lista_funcoes {
-        // inicia_pilha();
         $$ = $1;
         if ($2 != NULL) {
             asd_add_child($$, $2);
@@ -89,12 +92,24 @@ funcao:
     ;
 
 cabecalho_funcao:
-    TK_IDENTIFICADOR '=' abre_escopo lista_parametros '>' tipo { $$ = asd_new($1.valor_token, $6); }
+    TK_IDENTIFICADOR '=' abre_escopo lista_parametros '>' tipo { 
+        // se tipo for TK_PR_INT, então o tipo é SYMBOL_TYPE_INT, caso contrário é SYMBOL_TYPE_FLOAT
+        // symbol_table_type_t type;
+        // if ($6 == TK_PR_INT) {
+        //     type = SYMBOL_TYPE_INT;
+        // } else {
+        //     type = SYMBOL_TYPE_FLOAT;
+        // }
+        // $$ = asd_new($1.valor_token, type); 
+
+        $$ = asd_new($1.valor_token, TODO_TYPE);
+        // semantic_error(ERR_DECLARED, $1.valor_token , get_line_number());
+        }
     ;
 
-abre_escopo: ; {}
+abre_escopo: { printf("\nabrindo escopo\n"); } ; 
 
-fecha_escopo: ; {}
+fecha_escopo: { printf("fechando escopo"); } ; 
 
 empty: ;
 
@@ -114,7 +129,7 @@ parametro:
 
 // todo: criar bloco novo para função, diferenciando do bloco normal
 bloco_comandos: 
-    '{' abre_escopo comandos fecha_escopo '}' {  $$ = $2; }
+    '{' abre_escopo comandos fecha_escopo '}' {  $$ = $3; }
     ;
 
 comandos: 
@@ -162,9 +177,9 @@ declaracao_variavel:
 lista_variaveis:
     TK_IDENTIFICADOR TK_OC_LE literal ',' lista_variaveis {
         // todo: verificar se já foi declarado (apenas no escopo atual) -> ERR_DECLARED
-        $$ = asd_new("<="); 
-        asd_add_child($$, asd_new($1.valor_token)); 
-        asd_add_child($$, asd_new($3->label)); 
+        $$ = asd_new("<=", TODO_TYPE); 
+        asd_add_child($$, asd_new($1.valor_token, TODO_TYPE)); 
+        asd_add_child($$, asd_new($3->label, TODO_TYPE)); 
         if($5 != NULL) {
             asd_add_child($$, $5);
         }
@@ -172,9 +187,9 @@ lista_variaveis:
     | TK_IDENTIFICADOR ',' lista_variaveis { $$ = $3; }
     | TK_IDENTIFICADOR TK_OC_LE literal {
         // todo: verificar se já foi declarado (apenas no escopo atual) -> ERR_DECLARED
-        $$ = asd_new("<=");
-        asd_add_child($$, asd_new($1.valor_token)); 
-        asd_add_child($$, asd_new($3->label));
+        $$ = asd_new("<=", TODO_TYPE);
+        asd_add_child($$, asd_new($1.valor_token, TODO_TYPE)); 
+        asd_add_child($$, asd_new($3->label, TODO_TYPE));
     }
     | TK_IDENTIFICADOR { $$ = NULL; }
     ;
@@ -183,8 +198,14 @@ lista_variaveis:
 atribuicao:
     TK_IDENTIFICADOR '=' expressao { 
         // todo: verificar se identificador já foi declarado (percorrer toda a pilha até a base) -> ERR_UNDECLARED
-        $$ = asd_new("="); 
-        asd_add_child($$, asd_new($1.valor_token)); 
+        symbol_table_content_t *content = symbol_stack_find(&pilha_tabelas, $1.valor_token);
+
+        if (content == NULL) {
+            semantic_error(ERR_UNDECLARED, $1.valor_token, get_line_number());
+        }
+
+        $$ = asd_new("=", TODO_TYPE); 
+        asd_add_child($$, asd_new($1.valor_token, TODO_TYPE)); 
         asd_add_child($$, $3);
     }
     ;
@@ -203,7 +224,7 @@ chamada_funcao:
         if (function) {
             sprintf(function, "%s %s", CALL, $1.valor_token); 
 
-            $$ = asd_new(function);
+            $$ = asd_new(function, TODO_TYPE);
             asd_add_child($$, $3);
             
             free(function);
@@ -288,7 +309,7 @@ expressao_precedencia_5:
 
 expressao_precedencia_4:
     expressao_precedencia_3 { $$ = $1; }
-    | expressao_precedencia_4 '<' expressao_precedencia_3 { $$ = asd_new("<"); asd_add_child($$, $1); asd_add_child($$, $3); }
+    | expressao_precedencia_4 '<' expressao_precedencia_3 { $$ = asd_new("<", TODO_TYPE); asd_add_child($$, $1); asd_add_child($$, $3); }
     | expressao_precedencia_4 '>' expressao_precedencia_3 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
         $$ = asd_new(">", type); 
@@ -360,7 +381,14 @@ literal:
 
 operandos_simples:
         literal { $$ = $1; }
-    |   TK_IDENTIFICADOR { $$ = asd_new($1.valor_token); } // TODO: Adicionar tipo
+    |   TK_IDENTIFICADOR { 
+        // procurar tipo na pilha de tabela de símbolos
+
+        $$ = asd_new($1.valor_token, TODO_TYPE); 
+        
+    } // TODO: Adicionar tipo
+    // na chamada_funcao não há inferência de tipos, mas é possível definir o tipo de acordo com a tabela, pois
+    // um tipo NULL aqui talvez quebre quando expressao_precedencia_1 avaliar para chamada_funcao
     |   chamada_funcao { $$ = $1; }
     ;
 

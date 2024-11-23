@@ -8,6 +8,7 @@ void exporta (void *arvore);
 int main (int argc, char **argv)
 {
   int ret = yyparse(); 
+  printf("\n\n\t\tRET IS %d\n\n", ret);
   exporta (arvore);
   asd_print(arvore);
   asd_print_graphviz(arvore);
