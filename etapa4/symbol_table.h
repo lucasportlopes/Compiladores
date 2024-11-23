@@ -75,4 +75,6 @@ void open_scope(symbol_stack_t **stack);
 
 void close_scope();
 
+void semantic_error(int error_code, const char *identifier, int line);
+
 #endif // _SYMBOL_TABLE_H_

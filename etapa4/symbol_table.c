@@ -98,3 +98,19 @@ void open_scope(symbol_stack_t **stack) {
 void close_scope() {
     symbol_table_stack_pop();
 }
+
+void semantic_error(int error_code, const char *identifier, int line) {
+    if (error_code == ERR_UNDECLARED) {
+        fprintf(stderr, "Semantic error (line %d): identifier '%s' not declared.\n", line, identifier);
+    } else if (error_code == ERR_DECLARED) {
+        fprintf(stderr, "Semantic error (line %d): identifier '%s' already declared in the current scope.\n", line, identifier);
+    } else if (error_code == ERR_VARIABLE) {
+        fprintf(stderr, "Semantic error (line %d): identifier '%s' declared as a variable but used as a function.\n", line, identifier);
+    } else if (error_code == ERR_FUNCTION) {
+        fprintf(stderr, "Semantic error (line %d): identifier '%s' declared as a function but used as a variable.\n", line, identifier);
+    } else {
+        fprintf(stderr, "Semantic error (line %d): unknown error for identifier '%s'.\n", line, identifier);
+    }
+
+    exit(error_code);
+}
