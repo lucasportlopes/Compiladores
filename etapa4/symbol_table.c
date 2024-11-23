@@ -10,7 +10,7 @@ symbol_table_t *symbol_table_create(symbol_table_t *parent) {
         exit(EXIT_FAILURE);
     }
     table->first_entry = NULL;
-    table->parent = parent; // Define o escopo pai
+    table->parent = parent;
     return table;
 }
 
@@ -22,19 +22,20 @@ void symbol_table_free(symbol_table_t *table) {
     symbol_table_entry_t *entry = table->first_entry;
     while (entry) {
         symbol_table_entry_t *next = entry->next;
-        free(entry->key);         // Libera o lexema
-        free(entry->content);     // Libera o conteúdo associado
-        free(entry);              // Libera a entrada
+        free(entry->key);
+        free(entry->content);
+        free(entry);
         entry = next;
     }
 
-    free(table); // Libera a tabela
+    free(table);
 }
 
 void symbol_table_insert(symbol_table_t *table, char *key, symbol_table_content_t *content)
 {
     // Cria uma nova entrada
     symbol_table_entry_t *new_entry = malloc(sizeof(symbol_table_entry_t));
+    
     if (new_entry == NULL) {
         fprintf(stderr, "Erro ao alocar memória para nova entrada.\n");
         return;
@@ -65,4 +66,19 @@ void symbol_table_insert(symbol_table_t *table, char *key, symbol_table_content_
     current->next = new_entry; // Adiciona a nova entrada no final da lista
 }
 
-symbol_table_entry_t *symbol_table_find(symbol_table_t *table, const char *key);
+symbol_table_entry_t *symbol_table_find(symbol_table_t *table, const char *key) {
+    if (table == NULL || key == NULL) {
+        return NULL;
+    }
+
+    symbol_table_entry_t *entry = table->first_entry;
+
+    while (entry != NULL) {
+        if (strcmp(entry->key, key) == 0) {
+            return entry;
+        }
+        entry = entry->next;
+    }
+
+    return NULL;
+}

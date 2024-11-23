@@ -11,14 +11,14 @@
 
 // Enum para a natureza do símbolo
 typedef enum {
-    SYMBOL_NATURE_VARIABLE,  // Variável
-    SYMBOL_NATURE_FUNCTION   // Função
+    SYMBOL_NATURE_VARIABLE,
+    SYMBOL_NATURE_FUNCTION
 } symbol_table_nature_t;
 
 // Enum para o tipo do dado
 typedef enum {
-    SYMBOL_TYPE_INT,   // Inteiro
-    SYMBOL_TYPE_FLOAT  // Float
+    SYMBOL_TYPE_INT,
+    SYMBOL_TYPE_FLOAT
 } symbol_table_type_t;
 
 // Estrutura para o conteúdo de uma entrada na tabela de símbolos
@@ -41,12 +41,6 @@ typedef struct symbol_table_t {
     symbol_table_entry_t *first_entry;    // Ponteiro para a primeira entrada
     struct symbol_table_t *parent;       // Ponteiro para a tabela de símbolos pai (escopo superior)
 } symbol_table_t;
-
-// Estrutura para a pilha de tabelas de símbolos
-typedef struct symbol_stack_t {
-    symbol_table_t *table;         // Ponteiro para a tabela no topo da pilha
-    struct symbol_stack_t *next;   // Próximo elemento da pilha
-} symbol_stack_t;
 
 /**
  * @brief Cria uma nova tabela de símbolos.
