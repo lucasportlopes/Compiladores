@@ -28,11 +28,22 @@ void symbol_stack_pop(symbol_stack_t **stack) {
         return;
     }
     symbol_stack_t *current = *stack;
-    symbol_table_t *table = current->table;
-    *stack = (*stack)->next;
+    *stack = current->next;
     
-    symbol_table_free(table);
+    symbol_table_free(current->table);
     free(current);
 }
 
-symbol_stack_t *symbol_stack_find(char *key);
+symbol_table_content_t *symbol_stack_find(symbol_stack_t **stack, char *key) {
+    symbol_stack_t *current = *stack;
+
+    while (current) {
+        symbol_table_content_t *content = symbol_table_find(current->table, key);
+        if (content) {
+            return content;
+        }
+        current = current->next;
+    }
+    
+    return NULL;
+}

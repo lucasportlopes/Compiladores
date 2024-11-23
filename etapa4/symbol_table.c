@@ -19,13 +19,13 @@ void symbol_table_free(symbol_table_t *table) {
         return;
     }
 
-    symbol_table_entry_t *entry = table->first_entry;
-    while (entry) {
-        symbol_table_entry_t *next = entry->next;
-        free(entry->key);
-        free(entry->content);
-        free(entry);
-        entry = next;
+    symbol_table_entry_t *current_entry = table->first_entry;
+    while (current_entry) {
+        symbol_table_entry_t *next_entry = current_entry->next;
+        free(current_entry->key);
+        free(current_entry->content);
+        free(current_entry);
+        current_entry = next_entry;
     }
 
     free(table);
