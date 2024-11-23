@@ -221,7 +221,6 @@ chamada_funcao:
     }
     ;
 
-// TODO: Precisa inserir na tabela?
 lista_argumentos:
     expressao { 
         $$ = $1;
