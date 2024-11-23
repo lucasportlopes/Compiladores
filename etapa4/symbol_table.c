@@ -1,4 +1,5 @@
 #include "symbol_table.h"
+#include "symbol_stack.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -81,4 +82,19 @@ symbol_table_entry_t *symbol_table_find(symbol_table_t *table, const char *key) 
     }
 
     return NULL;
+}
+
+void open_scope(symbol_stack_t **stack) {
+    symbol_table_t *table = symbol_table_create(NULL);
+
+    if (*stack == NULL) {
+        *stack = symbol_stack_create(table);
+    } else {
+        table->parent = (*stack)->table;
+        symbol_table_stack_push(table);    
+    }
+}
+
+void close_scope() {
+    symbol_table_stack_pop();
 }
