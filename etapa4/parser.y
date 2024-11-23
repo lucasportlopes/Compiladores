@@ -89,7 +89,7 @@ funcao:
     ;
 
 cabecalho_funcao:
-    TK_IDENTIFICADOR '=' abre_escopo lista_parametros '>' tipo { $$ = asd_new($1.valor_token); }
+    TK_IDENTIFICADOR '=' abre_escopo lista_parametros '>' tipo { $$ = asd_new($1.valor_token, $6); }
     ;
 
 abre_escopo: ; {}
@@ -158,6 +158,7 @@ declaracao_variavel:
     tipo lista_variaveis { $$ = $2; };
     ;
 
+// TODO: Ajustar tipo
 lista_variaveis:
     TK_IDENTIFICADOR TK_OC_LE literal ',' lista_variaveis {
         // todo: verificar se já foi declarado (apenas no escopo atual) -> ERR_DECLARED
@@ -178,6 +179,7 @@ lista_variaveis:
     | TK_IDENTIFICADOR { $$ = NULL; }
     ;
 
+// TODO: Ajustar tipo
 atribuicao:
     TK_IDENTIFICADOR '=' expressao { 
         // todo: verificar se identificador já foi declarado (percorrer toda a pilha até a base) -> ERR_UNDECLARED
@@ -188,9 +190,10 @@ atribuicao:
     ;
 
 operacao_retorno: 
-    TK_PR_RETURN expressao { $$ = asd_new("return"); asd_add_child($$, $2); }
+    TK_PR_RETURN expressao { $$ = asd_new("return", $2->type); asd_add_child($$, $2); }
     ;
 
+// Ajustar o tipo da chamada de função
 chamada_funcao:
     TK_IDENTIFICADOR '(' lista_argumentos ')' {
         const char *CALL = "call";
@@ -222,14 +225,14 @@ lista_argumentos:
 
 fluxo_controle:
     TK_PR_IF '(' expressao ')' bloco_comandos {
-        $$ = asd_new("if"); 
+        $$ = asd_new("if", $3->type); 
         asd_add_child($$, $3); 
         if ($5 != NULL) { 
             asd_add_child($$, $5); 
         } 
     }
     | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos { 
-        $$ = asd_new("if"); 
+        $$ = asd_new("if", $3->type); 
         asd_add_child($$, $3); 
         if ($5 != NULL) { 
             asd_add_child($$, $5); 
@@ -239,7 +242,7 @@ fluxo_controle:
         }  
     }
     | TK_PR_WHILE '(' expressao ')' bloco_comandos { 
-        $$ = asd_new("while"); 
+        $$ = asd_new("while", $3->type); 
         asd_add_child($$, $3); 
         if ($5 != NULL) { 
             asd_add_child($$, $5); 
