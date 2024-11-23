@@ -9,6 +9,7 @@ void yyerror (char const *mensagem);
 #include "symbol_stack.h"
 extern int get_line_number();
 extern void *arvore;
+extern void *stack;
 %}
 
 %define parse.error verbose
@@ -360,10 +361,19 @@ literal:
 
 operandos_simples:
         literal { $$ = $1; }
-    |   TK_IDENTIFICADOR { $$ = asd_new($1.valor_token); } // TODO: Adicionar tipo
+    |   TK_IDENTIFICADOR {
+            symbol_table_content_t *content = symbol_stack_find(stack, $1.valor_token);
+
+            if (content == NULL) {
+                semantic_error(ERR_UNDECLARED, $1.valor_token, get_line_number());
+            } else if (content->nature == Function) {
+                semantic_error(ERR_FUNCTION, $1.valor_token, get_line_number());
+            }
+
+            $$ = asd_new($1.valor_token); 
+        }
     |   chamada_funcao { $$ = $1; }
     ;
-
 %%
 
 void yyerror(const char *error) {
