@@ -194,7 +194,6 @@ operacao_retorno:
     TK_PR_RETURN expressao { $$ = asd_new("return", $2->type); asd_add_child($$, $2); }
     ;
 
-// Ajustar o tipo da chamada de função
 chamada_funcao:
     TK_IDENTIFICADOR '(' lista_argumentos ')' {
         const char *CALL = "call";
@@ -202,6 +201,14 @@ chamada_funcao:
         char *function = (char *)malloc(size);
 
         if (function) {
+            symbol_table_content_t *content = symbol_stack_find(stack, $1.valor_token);
+
+            if (content == NULL) {
+                semantic_error(ERR_UNDECLARED, $1.valor_token, get_line_number());
+            } else if (content->nature == SYMBOL_NATURE_VARIABLE) {
+                semantic_error(ERR_VARIABLE, $1.valor_token, get_line_number());
+            }
+
             sprintf(function, "%s %s", CALL, $1.valor_token); 
 
             $$ = asd_new(function);
@@ -366,7 +373,7 @@ operandos_simples:
 
             if (content == NULL) {
                 semantic_error(ERR_UNDECLARED, $1.valor_token, get_line_number());
-            } else if (content->nature == Function) {
+            } else if (content->nature == SYMBOL_NATURE_FUNCTION) {
                 semantic_error(ERR_FUNCTION, $1.valor_token, get_line_number());
             }
 
