@@ -5,6 +5,8 @@ int yylex(void);
 void yyerror (char const *mensagem);
 #include <stdio.h>
 #include <string.h>
+#include "symbol_table.h"
+#include "symbol_stack.h"
 extern int get_line_number();
 extern void *arvore;
 %}
@@ -247,56 +249,115 @@ fluxo_controle:
 
 expressao:
     expressao_precedencia_6 { $$ = $1; }
-    | expressao TK_OC_OR expressao_precedencia_6 { $$ = asd_new("|"); asd_add_child($$, $1); asd_add_child($$, $3); }
+    | expressao TK_OC_OR expressao_precedencia_6 { 
+        symbol_table_type_t type = infer_type($1->type, $3->type);
+        $$ = asd_new("|", type); 
+        asd_add_child($$, $1); 
+        asd_add_child($$, $3); 
+    }
     ;
 
 expressao_precedencia_6:
     expressao_precedencia_5 { $$ = $1; }
-    | expressao_precedencia_6 TK_OC_AND expressao_precedencia_5 { $$ = asd_new("&"); asd_add_child($$, $1); asd_add_child($$, $3); }
+    | expressao_precedencia_6 TK_OC_AND expressao_precedencia_5 { 
+        symbol_table_type_t type = infer_type($1->type, $3->type);
+        $$ = asd_new("&", type); 
+        asd_add_child($$, $1); 
+        asd_add_child($$, $3); 
+    }
     ;
 
 expressao_precedencia_5:
     expressao_precedencia_4 { $$ = $1; }
-    | expressao_precedencia_5 TK_OC_EQ expressao_precedencia_4 { $$ = asd_new("=="); asd_add_child($$, $1); asd_add_child($$, $3); }
-    | expressao_precedencia_5 TK_OC_NE expressao_precedencia_4 { $$ = asd_new("!="); asd_add_child($$, $1); asd_add_child($$, $3); }
+    | expressao_precedencia_5 TK_OC_EQ expressao_precedencia_4 { 
+        symbol_table_type_t type = infer_type($1->type, $3->type);
+        $$ = asd_new("==", type); 
+        asd_add_child($$, $1); 
+        asd_add_child($$, $3); 
+    }
+    | expressao_precedencia_5 TK_OC_NE expressao_precedencia_4 { 
+        symbol_table_type_t type = infer_type($1->type, $3->type);
+        $$ = asd_new("!=", type); 
+        asd_add_child($$, $1); 
+        asd_add_child($$, $3); 
+    }
     ;
 
 expressao_precedencia_4:
     expressao_precedencia_3 { $$ = $1; }
     | expressao_precedencia_4 '<' expressao_precedencia_3 { $$ = asd_new("<"); asd_add_child($$, $1); asd_add_child($$, $3); }
-    | expressao_precedencia_4 '>' expressao_precedencia_3 { $$ = asd_new(">"); asd_add_child($$, $1); asd_add_child($$, $3); }
-    | expressao_precedencia_4 TK_OC_LE expressao_precedencia_3 { $$ = asd_new("<="); asd_add_child($$, $1); asd_add_child($$, $3); }
-    | expressao_precedencia_4 TK_OC_GE expressao_precedencia_3 { $$ = asd_new(">="); asd_add_child($$, $1); asd_add_child($$, $3); }
+    | expressao_precedencia_4 '>' expressao_precedencia_3 { 
+        symbol_table_type_t type = infer_type($1->type, $3->type);
+        $$ = asd_new(">", type); 
+        asd_add_child($$, $1); 
+        asd_add_child($$, $3); 
+    }
+    | expressao_precedencia_4 TK_OC_LE expressao_precedencia_3 { 
+        symbol_table_type_t type = infer_type($1->type, $3->type);
+        $$ = asd_new("<=", type); 
+        asd_add_child($$, $1); 
+        asd_add_child($$, $3); 
+    }
+    | expressao_precedencia_4 TK_OC_GE expressao_precedencia_3 { 
+        symbol_table_type_t type = infer_type($1->type, $3->type);
+        $$ = asd_new(">=", type); 
+        asd_add_child($$, $1); 
+        asd_add_child($$, $3); 
+    }
     ;
 
 expressao_precedencia_3:
     expressao_precedencia_2 { $$ = $1; }
-    | expressao_precedencia_3 '+' expressao_precedencia_2 { $$ = asd_new("+"); asd_add_child($$, $1); asd_add_child($$, $3); }
-    | expressao_precedencia_3 '-' expressao_precedencia_2 { $$ = asd_new("-"); asd_add_child($$, $1); asd_add_child($$, $3); }
+    | expressao_precedencia_3 '+' expressao_precedencia_2 { 
+        symbol_table_type_t type = infer_type($1->type, $3->type);
+        $$ = asd_new("+", type); 
+        asd_add_child($$, $1); 
+        asd_add_child($$, $3); 
+    }
+    | expressao_precedencia_3 '-' expressao_precedencia_2 { 
+        symbol_table_type_t type = infer_type($1->type, $3->type);
+        $$ = asd_new("-", type); 
+        asd_add_child($$, $1); 
+        asd_add_child($$, $3); 
+    }
     ;
 
 expressao_precedencia_2:
     expressao_precedencia_1 { $$ = $1; }
-    | expressao_precedencia_2 '*' expressao_precedencia_1 { $$ = asd_new("*"); asd_add_child($$, $1); asd_add_child($$, $3); }
-    | expressao_precedencia_2 '/' expressao_precedencia_1 { $$ = asd_new("/"); asd_add_child($$, $1); asd_add_child($$, $3); }
-    | expressao_precedencia_2 '%' expressao_precedencia_1 { $$ = asd_new("%"); asd_add_child($$, $1); asd_add_child($$, $3); }
+    | expressao_precedencia_2 '*' expressao_precedencia_1 {
+        symbol_table_type_t type = infer_type($1->type, $3->type);
+        $$ = asd_new("*", type); 
+        asd_add_child($$, $1); 
+        asd_add_child($$, $3); 
+    }
+    | expressao_precedencia_2 '/' expressao_precedencia_1 { 
+        symbol_table_type_t type = infer_type($1->type, $3->type);
+        $$ = asd_new("/", type); 
+        asd_add_child($$, $1); 
+        asd_add_child($$, $3); 
+    }
+    | expressao_precedencia_2 '%' expressao_precedencia_1 { 
+        symbol_table_type_t type = infer_type($1->type, $3->type);
+        $$ = asd_new("%", type); 
+        asd_add_child($$, $1); 
+        asd_add_child($$, $3); }
     ;
 
 expressao_precedencia_1:
     operandos_simples { $$ = $1; }
     | '(' expressao ')' { $$ = $2; }
-    | '-' expressao_precedencia_1 { $$ = asd_new("-"); asd_add_child($$, $2); }
-    | '!' expressao_precedencia_1 { $$ = asd_new("!"); asd_add_child($$, $2); }
+    | '-' expressao_precedencia_1 { $$ = asd_new("-", $2->type); asd_add_child($$, $2); }
+    | '!' expressao_precedencia_1 {$$ = asd_new("!", $2->type); asd_add_child($$, $2); }
     ;
 
 literal: 
-    TK_LIT_INT { $$ = asd_new($1.valor_token); }
-    | TK_LIT_FLOAT { $$ = asd_new($1.valor_token); }
+    TK_LIT_INT { $$ = asd_new($1.valor_token, SYMBOL_TYPE_INT); }
+    | TK_LIT_FLOAT { $$ = asd_new($1.valor_token, SYMBOL_TYPE_FLOAT); }
     ;
 
 operandos_simples:
         literal { $$ = $1; }
-    |   TK_IDENTIFICADOR { $$ = asd_new($1.valor_token); }
+    |   TK_IDENTIFICADOR { $$ = asd_new($1.valor_token); } // TODO: Adicionar tipo
     |   chamada_funcao { $$ = $1; }
     ;
 
