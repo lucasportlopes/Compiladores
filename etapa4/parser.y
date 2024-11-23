@@ -8,7 +8,7 @@ void yyerror (char const *mensagem);
 #include "symbol_stack.h"
 extern int get_line_number();
 extern void *arvore;
-extern void *stack;
+extern symbol_stack_t *stack;
 %}
 
 %define parse.error verbose
@@ -67,7 +67,7 @@ extern void *stack;
 programa:
     lista_funcoes { 
         symbol_table_t *escopo_global = symbol_table_create(NULL);
-        pilha_tabelas = symbol_stack_create(escopo_global);
+        stack = symbol_stack_create(escopo_global);
         $$ = $1; arvore = $$; 
     }
     ;
@@ -196,7 +196,7 @@ lista_variaveis:
 
 atribuicao:
     TK_IDENTIFICADOR '=' expressao { 
-        symbol_table_content_t *content = symbol_stack_find(stack, $1.valor_token);
+        symbol_table_content_t *content = symbol_stack_find(&stack, $1.valor_token);
 
         if (content == NULL) {
             semantic_error(ERR_UNDECLARED, $1.valor_token, get_line_number());
@@ -204,8 +204,8 @@ atribuicao:
             semantic_error(ERR_FUNCTION, $1.valor_token, get_line_number());
         }
 
-        $$ = asd_new("="); 
-        asd_add_child($$, asd_new($1.valor_token)); 
+        $$ = asd_new("=", TODO_TYPE); 
+        asd_add_child($$, asd_new($1.valor_token, TODO_TYPE)); 
         asd_add_child($$, $3);
     }
     ;
@@ -221,7 +221,7 @@ chamada_funcao:
         char *function = (char *)malloc(size);
 
         if (function) {
-            symbol_table_content_t *content = symbol_stack_find(stack, $1.valor_token);
+            symbol_table_content_t *content = symbol_stack_find(&stack, $1.valor_token);
 
             if (content == NULL) {
                 semantic_error(ERR_UNDECLARED, $1.valor_token, get_line_number());
@@ -389,7 +389,7 @@ literal:
 operandos_simples:
         literal { $$ = $1; }
     |   TK_IDENTIFICADOR {
-            symbol_table_content_t *content = symbol_stack_find(stack, $1.valor_token);
+            symbol_table_content_t *content = symbol_stack_find(&stack, $1.valor_token);
 
             if (content == NULL) {
                 semantic_error(ERR_UNDECLARED, $1.valor_token, get_line_number());
@@ -397,7 +397,7 @@ operandos_simples:
                 semantic_error(ERR_FUNCTION, $1.valor_token, get_line_number());
             }
 
-            $$ = asd_new($1.valor_token); 
+            $$ = asd_new($1.valor_token, TODO_TYPE); 
         }
     |   chamada_funcao { $$ = $1; }
     ;
