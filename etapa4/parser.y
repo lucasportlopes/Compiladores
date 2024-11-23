@@ -180,10 +180,16 @@ lista_variaveis:
     | TK_IDENTIFICADOR { $$ = NULL; }
     ;
 
-// TODO: Ajustar tipo
 atribuicao:
     TK_IDENTIFICADOR '=' expressao { 
-        // todo: verificar se identificador já foi declarado (percorrer toda a pilha até a base) -> ERR_UNDECLARED
+        symbol_table_content_t *content = symbol_stack_find(stack, $1.valor_token);
+
+        if (content == NULL) {
+            semantic_error(ERR_UNDECLARED, $1.valor_token, get_line_number());
+        } else if (content->nature == SYMBOL_NATURE_FUNCTION) {
+            semantic_error(ERR_FUNCTION, $1.valor_token, get_line_number());
+        }
+
         $$ = asd_new("="); 
         asd_add_child($$, asd_new($1.valor_token)); 
         asd_add_child($$, $3);
