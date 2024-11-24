@@ -40,7 +40,8 @@ symbol_table_content_t *symbol_stack_find(symbol_stack_t **stack, char *key) {
     while (current) {
         symbol_table_entry_t *entry = symbol_table_find(current->table, key);
         if(!entry) {
-            break;
+            current = current->next;
+            continue;
         }
         symbol_table_content_t *content = entry->content;
         if (content) {

@@ -119,19 +119,15 @@ cabecalho_funcao:
     ;
 
 abre_escopo: {
-    printf("\nabrindo escopo");
     open_scope(&stack);
 } ; 
 
-fecha_escopo: { 
-    printf("\nfechando escopo");
+fecha_escopo: {
     close_scope(&stack);
-} ; 
+} ;
 
 empty: ;
 
-// será que é ok criar esse nó apenas para guardar o tipo ? 
-// na chamada da função não vai ter inferencia, então talvez não seja necessário
 tipo: 
     TK_PR_INT { $$ = asd_new("", SYMBOL_TYPE_INT); } 
     | TK_PR_FLOAT { $$ = asd_new("", SYMBOL_TYPE_FLOAT); }
@@ -152,7 +148,7 @@ bloco_comandos_funcao:
     ;
 
 bloco_comandos: 
-    '{' abre_escopo comandos fecha_escopo '}' {  $$ = $3; }
+    '{' comandos '}' {  $$ = $2; }
     ;
 
 comandos: 
@@ -188,7 +184,7 @@ comando_simples:
     | atribuicao ';' {  $$ = $1; }
     | fluxo_controle ';' {  $$ = $1; }
     | operacao_retorno ';' {  $$ = $1; }
-    | bloco_comandos ';' {  $$ = $1; }
+    | abre_escopo bloco_comandos fecha_escopo ';' { $$ = $2; }
     | chamada_funcao ';'  {  $$ = $1; }
     ;
 

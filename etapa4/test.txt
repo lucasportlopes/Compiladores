@@ -1,8 +1,20 @@
-ff = > float{
-  int a;
+ff = > float{ // trocar nome da funcao para 'f' para ativar o erro
+  int a, b;
   {
+    int a <= 4; // permite redeclarar o a
     a = 3;
-  }
+    b = 4; // encontra o b do escopo anterior
+    // c = 5; // tem que dar erro
+    {
+      a = 5; // encontra o a do escopo anterior
+      int c <= 100; // permite redeclarar o c
+    };
+    b = 10; // mesmo após bloco, ainda tem acesso ao b do escopo atual
+    // c = 5; // tem que dar erro
+  };
+
+  // na árvore o primeiro comando após o bloco está sendo colocado como filho do primeiro nó do bloco, está correto ?
+
   return 2.1;
 }
 
