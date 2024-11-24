@@ -187,7 +187,18 @@ comando_simples:
     ;
 
 declaracao_variavel: 
-    tipo lista_variaveis { $$ = $2; };
+    tipo lista_variaveis { 
+        $$ = $2; 
+
+        symbol_table_entry_t *entry = stack->table->first_entry;
+
+        while (entry != NULL) {
+            if (entry->content->type == TODO_TYPE) {
+                entry->content->type = $1;
+            }
+            entry = entry->next;
+        }
+    };
     ;
 
 // TODO: Ajustar tipo
@@ -200,9 +211,9 @@ lista_variaveis:
         symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_VARIABLE, TODO_TYPE, NULL);
         symbol_table_insert(stack->table, $1.valor_token, content);
 
-        $$ = asd_new("<=", TODO_TYPE); 
+        $$ = asd_new("<=", UNKNOWN_TYPE); 
         asd_add_child($$, asd_new($1.valor_token, TODO_TYPE)); 
-        asd_add_child($$, asd_new($3->label, TODO_TYPE)); 
+        asd_add_child($$, asd_new($3->label, UNKNOWN_TYPE)); 
         if($5 != NULL) {
             asd_add_child($$, $5);
         }
@@ -212,7 +223,6 @@ lista_variaveis:
             semantic_error(ERR_DECLARED, $1.valor_token, get_line_number());
         }
         
-        // para pegar o tipo vai ser necessário "salvar" o tipo que está na declaracao_variavel de alguma forma
         symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_VARIABLE, TODO_TYPE, NULL);
 
         symbol_table_insert(stack->table, $1.valor_token, content);

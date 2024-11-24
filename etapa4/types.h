@@ -6,6 +6,7 @@ typedef enum {
     SYMBOL_TYPE_INT,
     SYMBOL_TYPE_FLOAT,
     TODO_TYPE,
+    UNKNOWN_TYPE,
 } symbol_table_type_t;
 
 typedef enum {
