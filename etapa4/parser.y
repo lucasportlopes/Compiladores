@@ -134,11 +134,9 @@ fecha_escopo: {
 
 empty: ;
 
-// será que é ok criar esse nó apenas para guardar o tipo ? 
-// na chamada da função não vai ter inferencia, então talvez não seja necessário
 tipo: 
-    TK_PR_INT { $$ = asd_new("", SYMBOL_TYPE_INT); } 
-    | TK_PR_FLOAT { $$ = asd_new("", SYMBOL_TYPE_FLOAT); }
+    TK_PR_INT { $$ = SYMBOL_TYPE_INT } 
+    | TK_PR_FLOAT { $$ = SYMBOL_TYPE_FLOAT }
     ;
 
 lista_parametros: 
