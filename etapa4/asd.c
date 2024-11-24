@@ -112,3 +112,13 @@ asd_tree_t *find_last_declaration(asd_tree_t *node) {
     // se nenhum filho é uma declaração, então o nó encontrado é a única declaração
     return node;
 }
+
+asd_tree_t* asd_find_deepest_node(asd_tree_t *node)
+{  
+  if (node != NULL){
+    while (node->children[node->number_of_children - 1] != NULL && node->number_of_children > 2){
+      node = node->children[node->number_of_children - 1];
+    }
+    return node;
+  }
+}
