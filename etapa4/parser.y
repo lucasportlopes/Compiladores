@@ -63,24 +63,19 @@ extern symbol_stack_t *stack;
 %type<arvore_t> lista_argumentos
 %type<arvore_t> lista_variaveis
 %type<arvore_t> tipo
-%type<arvore_t> escopo_global
 %%
 
-escopo_global: abre_escopo programa fecha_escopo {
-    $$ = $2;
-}
-
 programa:
-    lista_funcoes { 
-        $$ = $1; 
+    inicia_pilha lista_funcoes { 
+        $$ = $2; 
         arvore = $$; 
     }
     ;
 
-// inicia_pilha: {
-//     symbol_table_t *escopo_global = symbol_table_create(NULL);
-//     stack = symbol_stack_create(escopo_global);
-// } ;
+inicia_pilha: {
+    symbol_table_t *escopo_global = symbol_table_create(NULL);
+    stack = symbol_stack_create(escopo_global);
+} ;
 
 lista_funcoes:
     empty { $$ = NULL; }
@@ -107,7 +102,7 @@ cabecalho_funcao:
             semantic_error(ERR_DECLARED, $1.valor_token, get_line_number());
         }
 
-        symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_FUNCTION, $6->type, NULL);
+        symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_FUNCTION, TODO_TYPE, NULL);
         symbol_table_insert(stack->table->parent, $1.valor_token, content);
 
         symbol_table_type_t type;
@@ -137,8 +132,8 @@ empty: ;
 // será que é ok criar esse nó apenas para guardar o tipo ? 
 // na chamada da função não vai ter inferencia, então talvez não seja necessário
 tipo: 
-    TK_PR_INT { $$ = asd_new(NULL, SYMBOL_TYPE_INT); } 
-    | TK_PR_FLOAT { $$ = asd_new(NULL, SYMBOL_TYPE_FLOAT); }
+    TK_PR_INT { $$ = asd_new("", SYMBOL_TYPE_INT); } 
+    | TK_PR_FLOAT { $$ = asd_new("", SYMBOL_TYPE_FLOAT); }
     ;
 
 lista_parametros: 
