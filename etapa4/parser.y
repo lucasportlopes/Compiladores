@@ -62,15 +62,20 @@ extern symbol_stack_t *stack;
 %type<arvore_t> literal
 %type<arvore_t> lista_argumentos
 %type<arvore_t> lista_variaveis
+%type<arvore_t> tipo
 %%
 
 programa:
-    lista_funcoes { 
-        symbol_table_t *escopo_global = symbol_table_create(NULL);
-        stack = symbol_stack_create(escopo_global);
-        $$ = $1; arvore = $$; 
+    inicia_pilha lista_funcoes { 
+        $$ = $2; 
+        arvore = $$; 
     }
     ;
+
+inicia_pilha: {
+    symbol_table_t *escopo_global = symbol_table_create(NULL);
+    stack = symbol_stack_create(escopo_global);
+} ;
 
 lista_funcoes:
     empty { $$ = NULL; }
@@ -83,7 +88,7 @@ lista_funcoes:
     ;
 
 funcao: 
-    cabecalho_funcao bloco_comandos {
+    cabecalho_funcao bloco_comandos fecha_escopo {
         $$ = $1;
         if ($2 != NULL) {
             asd_add_child($$, $2);
@@ -92,29 +97,43 @@ funcao:
     ;
 
 cabecalho_funcao:
-    TK_IDENTIFICADOR '=' abre_escopo lista_parametros '>' tipo { 
-        // se tipo for TK_PR_INT, então o tipo é SYMBOL_TYPE_INT, caso contrário é SYMBOL_TYPE_FLOAT
-        // symbol_table_type_t type;
-        // if ($6 == TK_PR_INT) {
-        //     type = SYMBOL_TYPE_INT;
-        // } else {
-        //     type = SYMBOL_TYPE_FLOAT;
-        // }
-        // $$ = asd_new($1.valor_token, type); 
+    TK_IDENTIFICADOR '=' abre_escopo lista_parametros '>' tipo {
+        if (symbol_table_find(stack->table->parent , $1.valor_token) != NULL) {
+            semantic_error(ERR_DECLARED, $1.valor_token, get_line_number());
+        }
 
-        $$ = asd_new($1.valor_token, TODO_TYPE);
-        // semantic_error(ERR_DECLARED, $1.valor_token , get_line_number());
+        symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_FUNCTION, TODO_TYPE, NULL);
+        symbol_table_insert(stack->table->parent, $1.valor_token, content);
+
+        symbol_table_type_t type;
+        
+        if ($6->type == SYMBOL_TYPE_INT) {
+            type = SYMBOL_TYPE_INT;
+        } else if($6->type == SYMBOL_TYPE_FLOAT) {
+            type = SYMBOL_TYPE_FLOAT;
+        }
+
+        $$ = asd_new($1.valor_token, type); 
         }
     ;
 
-abre_escopo: { printf("\nabrindo escopo\n"); } ; 
+abre_escopo: {
+    printf("\nabrindo escopo");
+    open_scope(&stack);
+} ; 
 
-fecha_escopo: { printf("fechando escopo"); } ; 
+fecha_escopo: { 
+    printf("\nfechando escopo");
+    close_scope(&stack);
+} ; 
 
 empty: ;
 
+// será que é ok criar esse nó apenas para guardar o tipo ? 
+// na chamada da função não vai ter inferencia, então talvez não seja necessário
 tipo: 
-    TK_PR_INT | TK_PR_FLOAT
+    TK_PR_INT { $$ = asd_new("", SYMBOL_TYPE_INT); } 
+    | TK_PR_FLOAT { $$ = asd_new("", SYMBOL_TYPE_FLOAT); }
     ;
 
 lista_parametros: 
@@ -129,7 +148,8 @@ parametro:
 
 // todo: criar bloco novo para função, diferenciando do bloco normal
 bloco_comandos: 
-    '{' abre_escopo comandos fecha_escopo '}' {  $$ = $3; }
+    // '{' abre_escopo comandos fecha_escopo '}' {  $$ = $2; }
+    '{'  comandos  '}' {  $$ = $2; }
     ;
 
 comandos: 
@@ -176,7 +196,13 @@ declaracao_variavel:
 // TODO: Ajustar tipo
 lista_variaveis:
     TK_IDENTIFICADOR TK_OC_LE literal ',' lista_variaveis {
-        // todo: verificar se já foi declarado (apenas no escopo atual) -> ERR_DECLARED
+        if (symbol_table_find(stack->table, $1.valor_token) != NULL) {
+            semantic_error(ERR_DECLARED, $1.valor_token, get_line_number());
+        }
+
+        symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_VARIABLE, TODO_TYPE, NULL);
+        symbol_table_insert(stack->table, $1.valor_token, content);
+
         $$ = asd_new("<=", TODO_TYPE); 
         asd_add_child($$, asd_new($1.valor_token, TODO_TYPE)); 
         asd_add_child($$, asd_new($3->label, TODO_TYPE)); 
@@ -184,14 +210,39 @@ lista_variaveis:
             asd_add_child($$, $5);
         }
     }
-    | TK_IDENTIFICADOR ',' lista_variaveis { $$ = $3; }
+    | TK_IDENTIFICADOR ',' lista_variaveis {
+        if (symbol_table_find(stack->table, $1.valor_token) != NULL) {
+            semantic_error(ERR_DECLARED, $1.valor_token, get_line_number());
+        }
+        
+        // para pegar o tipo vai ser necessário "salvar" o tipo que está na declaracao_variavel de alguma forma
+        symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_VARIABLE, TODO_TYPE, NULL);
+
+        symbol_table_insert(stack->table, $1.valor_token, content);
+        $$ = $3; 
+    }
     | TK_IDENTIFICADOR TK_OC_LE literal {
-        // todo: verificar se já foi declarado (apenas no escopo atual) -> ERR_DECLARED
+        if (symbol_table_find(stack->table, $1.valor_token) != NULL) {
+            semantic_error(ERR_DECLARED, $1.valor_token, get_line_number());
+        }
+
+        symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_VARIABLE, TODO_TYPE, NULL);
+        symbol_table_insert(stack->table, $1.valor_token, content);
+
         $$ = asd_new("<=", TODO_TYPE);
         asd_add_child($$, asd_new($1.valor_token, TODO_TYPE)); 
         asd_add_child($$, asd_new($3->label, TODO_TYPE));
     }
-    | TK_IDENTIFICADOR { $$ = NULL; }
+    | TK_IDENTIFICADOR { 
+        if (symbol_table_find(stack->table, $1.valor_token) != NULL) {
+            semantic_error(ERR_DECLARED, $1.valor_token, get_line_number());
+        }
+
+        symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_VARIABLE, TODO_TYPE, NULL);
+        symbol_table_insert(stack->table, $1.valor_token, content);
+
+        $$ = NULL; 
+    }
     ;
 
 atribuicao:

@@ -32,6 +32,15 @@ void symbol_table_free(symbol_table_t *table) {
     free(table);
 }
 
+symbol_table_content_t *create_content(int line, symbol_table_nature_t nature, symbol_table_type_t type, valor_lexico_t *value) {
+    symbol_table_content_t *content = malloc(sizeof(symbol_table_content_t));
+    content->line = line;
+    content->nature = nature;
+    content->type = type;
+    content->value = value;
+    return content;
+}
+
 void symbol_table_insert(symbol_table_t *table, char *key, symbol_table_content_t *content)
 {
     // Cria uma nova entrada
@@ -91,14 +100,12 @@ void open_scope(symbol_stack_t **stack) {
         *stack = symbol_stack_create(table);
     } else {
         table->parent = (*stack)->table;
-        // symbol_stack_push(table);    
-        printf("push\n");
+        symbol_stack_push(stack, table);
     }
 }
 
-void close_scope() {
-    //symbol_stack_pop();
-    printf("pop\n");
+void close_scope(symbol_stack_t **stack) {
+    symbol_stack_pop(stack);
 }
 void semantic_error(int error_code, const char *identifier, int line) {
     if (error_code == ERR_UNDECLARED) {

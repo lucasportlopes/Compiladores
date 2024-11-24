@@ -38,6 +38,8 @@ void symbol_table_insert(symbol_table_t *table, char *key, symbol_table_content_
  */
 symbol_table_entry_t *symbol_table_find(symbol_table_t *table, const char *key);
 
+symbol_table_content_t *create_content(int line, symbol_table_nature_t nature, symbol_table_type_t type, valor_lexico_t *value);
+
 symbol_table_type_t infer_type(symbol_table_type_t type_one, symbol_table_type_t type_two);
 
 void open_scope(symbol_stack_t **stack);
