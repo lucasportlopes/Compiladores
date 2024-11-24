@@ -155,11 +155,9 @@ bloco_comandos:
 comandos: 
     empty { $$ = NULL; }
     | comando_simples comandos {
-        // todo: tentar resolver o problema com mudança nas produções ao invés de usar find_last_declaration
+        // procurando a última declaração da lista_variaveis para ser o pai do próximo comando
         if ($1 != NULL && $2 != NULL) {
             $$ = $1;
-            // se tiver alguma declaração na lista_variaveis, procura 
-            // pelo último "<=" para usar como parent para o próximo node
             if (strcmp($1->label, "<=") == 0) {
                 asd_tree_t *last_declaration = find_last_declaration($1);
 
@@ -167,7 +165,6 @@ comandos:
                     asd_add_child(last_declaration, $2);
                 }
             } else {
-                // caso contrário a lista_variáveis não teve nenhuma inicialização, então apenas adiciona o filho
                 asd_add_child($$, $2);
             }        
         } else if ($1 != NULL) {
