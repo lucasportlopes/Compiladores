@@ -134,8 +134,8 @@ fecha_escopo: {
 empty: ;
 
 tipo: 
-    TK_PR_INT { $$ = asd_new("", SYMBOL_TYPE_INT); } 
-    | TK_PR_FLOAT { $$ = asd_new("", SYMBOL_TYPE_FLOAT); }
+    TK_PR_INT { $$ = SYMBOL_TYPE_INT } 
+    | TK_PR_FLOAT { $$ = SYMBOL_TYPE_FLOAT }
     ;
 
 lista_parametros: 
