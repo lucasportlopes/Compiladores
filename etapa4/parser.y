@@ -18,6 +18,7 @@ extern symbol_stack_t *stack;
 %union {
     valor_lexico_t valor_lexico;
     asd_tree_t *arvore_t;
+    symbol_table_type_t symbol_table_type;
 }
 
 %token TK_PR_INT
@@ -63,7 +64,7 @@ extern symbol_stack_t *stack;
 %type<arvore_t> literal
 %type<arvore_t> lista_argumentos
 %type<arvore_t> lista_variaveis
-%type<arvore_t> tipo
+%type<symbol_table_type> tipo
 %%
 
 programa:
@@ -108,9 +109,9 @@ cabecalho_funcao:
 
         symbol_table_type_t type;
         
-        if ($6->type == SYMBOL_TYPE_INT) {
+        if ($6 == SYMBOL_TYPE_INT) {
             type = SYMBOL_TYPE_INT;
-        } else if($6->type == SYMBOL_TYPE_FLOAT) {
+        } else if($6 == SYMBOL_TYPE_FLOAT) {
             type = SYMBOL_TYPE_FLOAT;
         }
 
@@ -131,8 +132,8 @@ empty: ;
 // será que é ok criar esse nó apenas para guardar o tipo ? 
 // na chamada da função não vai ter inferencia, então talvez não seja necessário
 tipo: 
-    TK_PR_INT { $$ = asd_new("", SYMBOL_TYPE_INT); } 
-    | TK_PR_FLOAT { $$ = asd_new("", SYMBOL_TYPE_FLOAT); }
+    TK_PR_INT { $$ = SYMBOL_TYPE_INT; } 
+    | TK_PR_FLOAT { $$ = SYMBOL_TYPE_FLOAT; }
     ;
 
 lista_parametros: 
@@ -245,6 +246,7 @@ lista_variaveis:
         $$ = NULL; 
     }
     ;
+// ---------------------------------------------------------------------------------------------------------------------------
 
 atribuicao:
     TK_IDENTIFICADOR '=' expressao { 
