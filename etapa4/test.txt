@@ -21,5 +21,12 @@ ff = > float{ // trocar nome da funcao para 'f' para ativar o erro
 f = > int{
   int a, b, c <= 3, d, e <= 4;
   a = 3;
+  a = 1 + 1; // type de a = int
+  a = 1.1 + 3; // type de a = float
+
+  c = (c < e) & (c == c);
+
+  if(a+b <= 10){};
+
   return 10;
 }

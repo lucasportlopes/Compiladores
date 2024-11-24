@@ -104,9 +104,6 @@ cabecalho_funcao:
             semantic_error(ERR_DECLARED, $1.valor_token, get_line_number());
         }
 
-        symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_FUNCTION, TODO_TYPE, NULL);
-        symbol_table_insert(stack->table->parent, $1.valor_token, content);
-
         symbol_table_type_t type;
         
         if ($6 == SYMBOL_TYPE_INT) {
@@ -114,6 +111,9 @@ cabecalho_funcao:
         } else if($6 == SYMBOL_TYPE_FLOAT) {
             type = SYMBOL_TYPE_FLOAT;
         }
+
+        symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_FUNCTION, type, NULL);
+        symbol_table_insert(stack->table->parent, $1.valor_token, content);
 
         $$ = asd_new($1.valor_token, type); 
         }

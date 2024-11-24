@@ -37,7 +37,7 @@ run:
 	make graph
 
 tar:
-	tar cvzf $(ETAPA).tgz main.c scanner.l parser.y asd.c asd.h Makefile output2dot.sh
+	tar cvzf $(ETAPA).tgz main.c scanner.l parser.y asd.c asd.h types.h symbol_stack.c symbol_stack.h symbol_table.c symbol_table.h Makefile
 
 .PHONY: clean
 
