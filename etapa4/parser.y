@@ -258,8 +258,8 @@ atribuicao:
             semantic_error(ERR_FUNCTION, $1.valor_token, get_line_number());
         }
 
-        $$ = asd_new("=", TODO_TYPE); 
-        asd_add_child($$, asd_new($1.valor_token, TODO_TYPE)); 
+        $$ = asd_new("=", content->type); 
+        asd_add_child($$, asd_new($1.valor_token, content->type)); 
         asd_add_child($$, $3);
     }
     ;
@@ -285,7 +285,7 @@ chamada_funcao:
 
             sprintf(function, "%s %s", CALL, $1.valor_token); 
 
-            $$ = asd_new(function, TODO_TYPE);
+            $$ = asd_new(function, content->type);
             asd_add_child($$, $3);
             
             free(function);
@@ -370,7 +370,12 @@ expressao_precedencia_5:
 
 expressao_precedencia_4:
     expressao_precedencia_3 { $$ = $1; }
-    | expressao_precedencia_4 '<' expressao_precedencia_3 { $$ = asd_new("<", TODO_TYPE); asd_add_child($$, $1); asd_add_child($$, $3); }
+    | expressao_precedencia_4 '<' expressao_precedencia_3 { 
+        symbol_table_type_t type = infer_type($1->type, $3->type);
+        $$ = asd_new("<", type); 
+        asd_add_child($$, $1); 
+        asd_add_child($$, $3); 
+    }
     | expressao_precedencia_4 '>' expressao_precedencia_3 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
         $$ = asd_new(">", type); 
@@ -451,7 +456,7 @@ operandos_simples:
                 semantic_error(ERR_FUNCTION, $1.valor_token, get_line_number());
             }
 
-            $$ = asd_new($1.valor_token, TODO_TYPE); 
+            $$ = asd_new($1.valor_token, content->type); 
         }
     |   chamada_funcao { $$ = $1; }
     ;
