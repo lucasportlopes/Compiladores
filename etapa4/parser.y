@@ -53,6 +53,7 @@ extern symbol_stack_t *stack;
 %type<arvore_t> comando_simples
 %type<arvore_t> comandos
 %type<arvore_t> bloco_comandos
+%type<arvore_t> bloco_comandos_funcao
 %type<arvore_t> parametro
 %type<arvore_t> lista_parametros
 %type<arvore_t> cabecalho_funcao
@@ -88,7 +89,7 @@ lista_funcoes:
     ;
 
 funcao: 
-    cabecalho_funcao bloco_comandos fecha_escopo {
+    cabecalho_funcao bloco_comandos_funcao fecha_escopo {
         $$ = $1;
         if ($2 != NULL) {
             asd_add_child($$, $2);
@@ -146,10 +147,12 @@ parametro:
     TK_IDENTIFICADOR '<' '-' tipo { $$ = NULL; }
     ;
 
-// todo: criar bloco novo para função, diferenciando do bloco normal
+bloco_comandos_funcao:
+    '{' comandos  '}' {  $$ = $2; }
+    ;
+
 bloco_comandos: 
-    // '{' abre_escopo comandos fecha_escopo '}' {  $$ = $2; }
-    '{'  comandos  '}' {  $$ = $2; }
+    '{' abre_escopo comandos fecha_escopo '}' {  $$ = $3; }
     ;
 
 comandos: 
