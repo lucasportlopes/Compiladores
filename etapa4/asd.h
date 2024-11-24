@@ -37,4 +37,6 @@ void asd_print(asd_tree_t *tree);
 void asd_print_graphviz (asd_tree_t *tree);
 
 asd_tree_t *find_last_declaration(asd_tree_t *node);
+
+asd_tree_t *asd_find_deepest_node(asd_tree_t *tree);
 #endif //_ARVORE_H_

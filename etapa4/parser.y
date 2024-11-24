@@ -155,18 +155,13 @@ bloco_comandos:
 comandos: 
     empty { $$ = NULL; }
     | comando_simples comandos {
-        // procurando a última declaração da lista_variaveis para ser o pai do próximo comando
         if ($1 != NULL && $2 != NULL) {
             $$ = $1;
-            if (strcmp($1->label, "<=") == 0) {
-                asd_tree_t *last_declaration = find_last_declaration($1);
+            asd_tree_t *deepest_node = asd_find_deepest_node($$);
 
-                if (last_declaration != NULL) {
-                    asd_add_child(last_declaration, $2);
-                }
-            } else {
-                asd_add_child($$, $2);
-            }        
+            if (deepest_node != NULL) {
+                asd_add_child(deepest_node, $2);     
+            }
         } else if ($1 != NULL) {
             $$ = $1;
         } else if ($2 != NULL) {
