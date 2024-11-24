@@ -201,7 +201,6 @@ declaracao_variavel:
     };
     ;
 
-// TODO: Ajustar tipo
 lista_variaveis:
     TK_IDENTIFICADOR TK_OC_LE literal ',' lista_variaveis {
         if (symbol_table_find(stack->table, $1->valor_token) != NULL) {
@@ -236,9 +235,9 @@ lista_variaveis:
         symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_VARIABLE, TODO_TYPE, NULL);
         symbol_table_insert(stack->table, $1->valor_token, content);
 
-        $$ = asd_new("<=", TODO_TYPE);
+        $$ = asd_new("<=", UNKNOWN_TYPE);
         asd_add_child($$, asd_new($1->valor_token, TODO_TYPE)); 
-        asd_add_child($$, asd_new($3->label, TODO_TYPE));
+        asd_add_child($$, asd_new($3->label, UNKNOWN_TYPE));
     }
     | TK_IDENTIFICADOR { 
         if (symbol_table_find(stack->table, $1->valor_token) != NULL) {
