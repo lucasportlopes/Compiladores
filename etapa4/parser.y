@@ -82,14 +82,6 @@ programa:
 //     stack = symbol_stack_create(escopo_global);
 // } ;
 
-abre_escopo: empty {
-    open_scope(&stack);
-}
-
-fecha_escopo: empty {
-    close_scope(&stack);
-}
-
 lista_funcoes:
     empty { $$ = NULL; }
     | funcao lista_funcoes {
