@@ -125,7 +125,7 @@ void semantic_error(int error_code, const char *identifier, int line) {
 }
 
 symbol_table_type_t infer_type(symbol_table_type_t type_one, symbol_table_type_t type_two) {
-    printf("type_one: %d, type_two: %d\n", type_one, type_two);
+    //printf("type_one: %d, type_two: %d\n", type_one, type_two);
     if (type_one == SYMBOL_TYPE_INT && type_two == SYMBOL_TYPE_INT) {
         return SYMBOL_TYPE_INT;
     } else if (type_one == SYMBOL_TYPE_FLOAT && type_two == SYMBOL_TYPE_FLOAT || 

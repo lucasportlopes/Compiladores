@@ -188,7 +188,7 @@ declaracao_variavel:
         symbol_table_entry_t *entry = stack->table->first_entry;
 
         while (entry != NULL) {
-            if ( entry->content->type == TODO_TYPE) {
+            if (entry->content->type == TODO_TYPE) {
                 entry->content->type = $1;
             }
             entry = entry->next;
@@ -282,14 +282,14 @@ chamada_funcao:
                 semantic_error(ERR_VARIABLE, $1->valor_token, get_line_number());
             }
 
-            sprintf(function, "%s %s", CALL, $1->valor_token); 
+            // sprintf(function, "%s %s", CALL, $1->valor_token); 
 
             $$ = asd_new(function, content->type);
             asd_add_child($$, $3);
             
             free(function);
         } else {
-            fprintf(stderr, "Erro na alocacao de memoria! \n");
+            // fprintf(stderr, "Erro na alocacao de memoria! \n");
         }
     }
     ;
