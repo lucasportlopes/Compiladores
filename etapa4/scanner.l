@@ -24,23 +24,26 @@ while { return TK_PR_WHILE; }
 return { return TK_PR_RETURN; }
 
 [0-9]+ { 
-    yylval.valor_lexico.valor_token = strdup(yytext);
-    yylval.valor_lexico.linha = yylineno; 
-    yylval.valor_lexico.tipo_token = LITERAL;
+    yylval.valor_lexico = malloc(sizeof(valor_lexico_t));
+    yylval.valor_lexico->valor_token = strdup(yytext);
+    yylval.valor_lexico->linha = yylineno; 
+    yylval.valor_lexico->tipo_token = LITERAL;
     return TK_LIT_INT;
 }
 
 [0-9]*\.[0-9]+ { 
-    yylval.valor_lexico.valor_token = strdup(yytext);
-    yylval.valor_lexico.linha = yylineno;
-    yylval.valor_lexico.tipo_token = LITERAL;
+    yylval.valor_lexico = malloc(sizeof(valor_lexico_t));
+    yylval.valor_lexico->valor_token = strdup(yytext);
+    yylval.valor_lexico->linha = yylineno;
+    yylval.valor_lexico->tipo_token = LITERAL;
     return TK_LIT_FLOAT;
 }
 
 [a-z_][a-zA-Z0-9_]* { 
-    yylval.valor_lexico.valor_token = strdup(yytext);
-    yylval.valor_lexico.linha = yylineno;
-    yylval.valor_lexico.tipo_token = IDENTIFICADOR;
+    yylval.valor_lexico = malloc(sizeof(valor_lexico_t));
+    yylval.valor_lexico->valor_token = strdup(yytext);
+    yylval.valor_lexico->linha = yylineno;
+    yylval.valor_lexico->tipo_token = IDENTIFICADOR;
     return TK_IDENTIFICADOR; 
 }
 

@@ -16,7 +16,7 @@ extern symbol_stack_t *stack;
 %code requires { #include "asd.h" }
 
 %union {
-    valor_lexico_t valor_lexico;
+    valor_lexico_t *valor_lexico;
     asd_tree_t *arvore_t;
     symbol_table_type_t symbol_table_type;
 }
@@ -100,8 +100,8 @@ funcao:
 
 cabecalho_funcao:
     TK_IDENTIFICADOR '=' abre_escopo lista_parametros '>' tipo {
-        if (symbol_table_find(stack->table->parent , $1.valor_token) != NULL) {
-            semantic_error(ERR_DECLARED, $1.valor_token, get_line_number());
+        if (symbol_table_find(stack->table->parent , $1->valor_token) != NULL) {
+            semantic_error(ERR_DECLARED, $1->valor_token, get_line_number());
         }
 
         symbol_table_type_t type;
@@ -113,9 +113,9 @@ cabecalho_funcao:
         }
 
         symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_FUNCTION, type, NULL);
-        symbol_table_insert(stack->table->parent, $1.valor_token, content);
+        symbol_table_insert(stack->table->parent, $1->valor_token, content);
 
-        $$ = asd_new($1.valor_token, type); 
+        $$ = asd_new($1->valor_token, type); 
         }
     ;
 
@@ -193,7 +193,7 @@ declaracao_variavel:
         symbol_table_entry_t *entry = stack->table->first_entry;
 
         while (entry != NULL) {
-            if (entry->content->type == TODO_TYPE) {
+            if ( entry->content->type == TODO_TYPE) {
                 entry->content->type = $1;
             }
             entry = entry->next;
@@ -204,49 +204,49 @@ declaracao_variavel:
 // TODO: Ajustar tipo
 lista_variaveis:
     TK_IDENTIFICADOR TK_OC_LE literal ',' lista_variaveis {
-        if (symbol_table_find(stack->table, $1.valor_token) != NULL) {
-            semantic_error(ERR_DECLARED, $1.valor_token, get_line_number());
+        if (symbol_table_find(stack->table, $1->valor_token) != NULL) {
+            semantic_error(ERR_DECLARED, $1->valor_token, get_line_number());
         }
 
         symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_VARIABLE, TODO_TYPE, NULL);
-        symbol_table_insert(stack->table, $1.valor_token, content);
+        symbol_table_insert(stack->table, $1->valor_token, content);
 
         $$ = asd_new("<=", UNKNOWN_TYPE); 
-        asd_add_child($$, asd_new($1.valor_token, TODO_TYPE)); 
+        asd_add_child($$, asd_new($1->valor_token, TODO_TYPE)); 
         asd_add_child($$, asd_new($3->label, UNKNOWN_TYPE)); 
         if($5 != NULL) {
             asd_add_child($$, $5);
         }
     }
     | TK_IDENTIFICADOR ',' lista_variaveis {
-        if (symbol_table_find(stack->table, $1.valor_token) != NULL) {
-            semantic_error(ERR_DECLARED, $1.valor_token, get_line_number());
+        if (symbol_table_find(stack->table, $1->valor_token) != NULL) {
+            semantic_error(ERR_DECLARED, $1->valor_token, get_line_number());
         }
         
         symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_VARIABLE, TODO_TYPE, NULL);
 
-        symbol_table_insert(stack->table, $1.valor_token, content);
+        symbol_table_insert(stack->table, $1->valor_token, content);
         $$ = $3; 
     }
     | TK_IDENTIFICADOR TK_OC_LE literal {
-        if (symbol_table_find(stack->table, $1.valor_token) != NULL) {
-            semantic_error(ERR_DECLARED, $1.valor_token, get_line_number());
+        if (symbol_table_find(stack->table, $1->valor_token) != NULL) {
+            semantic_error(ERR_DECLARED, $1->valor_token, get_line_number());
         }
 
         symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_VARIABLE, TODO_TYPE, NULL);
-        symbol_table_insert(stack->table, $1.valor_token, content);
+        symbol_table_insert(stack->table, $1->valor_token, content);
 
         $$ = asd_new("<=", TODO_TYPE);
-        asd_add_child($$, asd_new($1.valor_token, TODO_TYPE)); 
+        asd_add_child($$, asd_new($1->valor_token, TODO_TYPE)); 
         asd_add_child($$, asd_new($3->label, TODO_TYPE));
     }
     | TK_IDENTIFICADOR { 
-        if (symbol_table_find(stack->table, $1.valor_token) != NULL) {
-            semantic_error(ERR_DECLARED, $1.valor_token, get_line_number());
+        if (symbol_table_find(stack->table, $1->valor_token) != NULL) {
+            semantic_error(ERR_DECLARED, $1->valor_token, get_line_number());
         }
 
         symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_VARIABLE, TODO_TYPE, NULL);
-        symbol_table_insert(stack->table, $1.valor_token, content);
+        symbol_table_insert(stack->table, $1->valor_token, content);
 
         $$ = NULL; 
     }
@@ -255,16 +255,16 @@ lista_variaveis:
 
 atribuicao:
     TK_IDENTIFICADOR '=' expressao { 
-        symbol_table_content_t *content = symbol_stack_find(&stack, $1.valor_token);
+        symbol_table_content_t *content = symbol_stack_find(&stack, $1->valor_token);
 
         if (content == NULL) {
-            semantic_error(ERR_UNDECLARED, $1.valor_token, get_line_number());
+            semantic_error(ERR_UNDECLARED, $1->valor_token, get_line_number());
         } else if (content->nature == SYMBOL_NATURE_FUNCTION) {
-            semantic_error(ERR_FUNCTION, $1.valor_token, get_line_number());
+            semantic_error(ERR_FUNCTION, $1->valor_token, get_line_number());
         }
 
         $$ = asd_new("=", content->type); 
-        asd_add_child($$, asd_new($1.valor_token, content->type)); 
+        asd_add_child($$, asd_new($1->valor_token, content->type)); 
         asd_add_child($$, $3);
     }
     ;
@@ -276,19 +276,19 @@ operacao_retorno:
 chamada_funcao:
     TK_IDENTIFICADOR '(' lista_argumentos ')' {
         const char *CALL = "call";
-        size_t size = strlen(CALL) + strlen($1.valor_token) + 2;
+        size_t size = strlen(CALL) + strlen($1->valor_token) + 2;
         char *function = (char *)malloc(size);
 
         if (function) {
-            symbol_table_content_t *content = symbol_stack_find(&stack, $1.valor_token);
+            symbol_table_content_t *content = symbol_stack_find(&stack, $1->valor_token);
 
             if (content == NULL) {
-                semantic_error(ERR_UNDECLARED, $1.valor_token, get_line_number());
+                semantic_error(ERR_UNDECLARED, $1->valor_token, get_line_number());
             } else if (content->nature == SYMBOL_NATURE_VARIABLE) {
-                semantic_error(ERR_VARIABLE, $1.valor_token, get_line_number());
+                semantic_error(ERR_VARIABLE, $1->valor_token, get_line_number());
             }
 
-            sprintf(function, "%s %s", CALL, $1.valor_token); 
+            sprintf(function, "%s %s", CALL, $1->valor_token); 
 
             $$ = asd_new(function, content->type);
             asd_add_child($$, $3);
@@ -446,22 +446,22 @@ expressao_precedencia_1:
     ;
 
 literal: 
-    TK_LIT_INT { $$ = asd_new($1.valor_token, SYMBOL_TYPE_INT); }
-    | TK_LIT_FLOAT { $$ = asd_new($1.valor_token, SYMBOL_TYPE_FLOAT); }
+    TK_LIT_INT { $$ = asd_new($1->valor_token, SYMBOL_TYPE_INT); }
+    | TK_LIT_FLOAT { $$ = asd_new($1->valor_token, SYMBOL_TYPE_FLOAT); }
     ;
 
 operandos_simples:
         literal { $$ = $1; }
     |   TK_IDENTIFICADOR {
-            symbol_table_content_t *content = symbol_stack_find(&stack, $1.valor_token);
+            symbol_table_content_t *content = symbol_stack_find(&stack, $1->valor_token);
 
             if (content == NULL) {
-                semantic_error(ERR_UNDECLARED, $1.valor_token, get_line_number());
+                semantic_error(ERR_UNDECLARED, $1->valor_token, get_line_number());
             } else if (content->nature == SYMBOL_NATURE_FUNCTION) {
-                semantic_error(ERR_FUNCTION, $1.valor_token, get_line_number());
+                semantic_error(ERR_FUNCTION, $1->valor_token, get_line_number());
             }
 
-            $$ = asd_new($1.valor_token, content->type); 
+            $$ = asd_new($1->valor_token, content->type); 
         }
     |   chamada_funcao { $$ = $1; }
     ;
