@@ -63,19 +63,32 @@ extern symbol_stack_t *stack;
 %type<arvore_t> lista_argumentos
 %type<arvore_t> lista_variaveis
 %type<arvore_t> tipo
+%type<arvore_t> escopo_global
 %%
 
+escopo_global: abre_escopo programa fecha_escopo {
+    $$ = $2;
+}
+
 programa:
-    inicia_pilha lista_funcoes { 
-        $$ = $2; 
+    lista_funcoes { 
+        $$ = $1; 
         arvore = $$; 
     }
     ;
 
-inicia_pilha: {
-    symbol_table_t *escopo_global = symbol_table_create(NULL);
-    stack = symbol_stack_create(escopo_global);
-} ;
+// inicia_pilha: {
+//     symbol_table_t *escopo_global = symbol_table_create(NULL);
+//     stack = symbol_stack_create(escopo_global);
+// } ;
+
+abre_escopo: empty {
+    open_scope(&stack);
+}
+
+fecha_escopo: empty {
+    close_scope(&stack);
+}
 
 lista_funcoes:
     empty { $$ = NULL; }
