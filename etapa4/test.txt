@@ -1,7 +1,7 @@
 ff = > float{ // trocar nome da funcao para 'f' para ativar o erro
   int a, b;
   {
-    int a <= 4; // permite redeclarar o a
+    //int a <= 4; // permite redeclarar o a
     a = 3;
     b = 4; // encontra o b do escopo anterior
     // c = 5; // tem que dar erro
