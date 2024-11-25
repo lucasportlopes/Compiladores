@@ -52,3 +52,16 @@ symbol_table_content_t *symbol_stack_find(symbol_stack_t **stack, char *key) {
     
     return NULL;
 }
+
+void symbol_stack_insert_at_bottom(symbol_stack_t **stack, char *key, symbol_table_content_t *content) {
+    if (*stack == NULL) {
+        return;
+    }
+
+    symbol_stack_t *current = *stack;
+    while (current->next != NULL) {
+        current = current->next;
+    }
+
+    symbol_table_insert(current->table, key, content);
+}

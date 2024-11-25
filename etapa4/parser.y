@@ -100,7 +100,9 @@ funcao:
 
 cabecalho_funcao:
     TK_IDENTIFICADOR '=' abre_escopo lista_parametros '>' tipo {
-        if (symbol_table_find(stack->table->parent , $1->valor_token) != NULL) {
+        symbol_table_content_t *function_declared = symbol_stack_find(&stack, $1->valor_token);
+
+        if (function_declared != NULL) {
             semantic_error(ERR_DECLARED, $1->valor_token, get_line_number());
         }
 
@@ -113,7 +115,7 @@ cabecalho_funcao:
         }
 
         symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_FUNCTION, type, NULL);
-        symbol_table_insert(stack->table->parent, $1->valor_token, content);
+        symbol_stack_insert_at_bottom(&stack, $1->valor_token, content);
 
         $$ = asd_new($1->valor_token, type); 
         }

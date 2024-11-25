@@ -14,4 +14,6 @@ void symbol_stack_pop(symbol_stack_t **stack);
 
 symbol_table_content_t *symbol_stack_find(symbol_stack_t **stack, char *key);
 
+void symbol_stack_insert_at_bottom(symbol_stack_t **stack, char *key, symbol_table_content_t *content);
+
 #endif // _SYMBOL_TABLE_H_
