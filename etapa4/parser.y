@@ -68,7 +68,7 @@ extern symbol_stack_t *stack;
 %%
 
 programa:
-    inicia_pilha lista_funcoes { 
+    inicia_pilha lista_funcoes finaliza_pilha { 
         $$ = $2; 
         arvore = $$; 
     }
@@ -78,6 +78,10 @@ inicia_pilha: {
     symbol_table_t *escopo_global = symbol_table_create(NULL);
     stack = symbol_stack_create(escopo_global);
 } ;
+
+finaliza_pilha: {
+    symbol_stack_free(&stack);
+};
 
 lista_funcoes:
     empty { $$ = NULL; }

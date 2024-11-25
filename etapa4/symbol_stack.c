@@ -34,6 +34,12 @@ void symbol_stack_pop(symbol_stack_t **stack) {
     free(current);
 }
 
+void symbol_stack_free(symbol_stack_t **stack) {
+    while (*stack != NULL) {
+        symbol_stack_pop(stack);
+    }
+}
+
 symbol_table_content_t *symbol_stack_find(symbol_stack_t **stack, char *key) {
     symbol_stack_t *current = *stack;
 

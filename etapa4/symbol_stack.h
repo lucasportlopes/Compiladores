@@ -6,7 +6,7 @@
 
 symbol_stack_t *symbol_stack_create(symbol_table_t *table);
 
-void symbol_stack_free(symbol_stack_t *stack);
+void symbol_stack_free(symbol_stack_t **stack);
 
 void symbol_stack_push(symbol_stack_t **stack, symbol_table_t *table);
 
