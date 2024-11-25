@@ -68,7 +68,7 @@ extern symbol_stack_t *stack;
 %%
 
 programa:
-    inicia_pilha lista_funcoes { 
+    inicia_pilha lista_funcoes fecha_escopo { 
         $$ = $2; 
         arvore = $$; 
     }
@@ -247,7 +247,6 @@ lista_variaveis:
         $$ = NULL; 
     }
     ;
-// ---------------------------------------------------------------------------------------------------------------------------
 
 atribuicao:
     TK_IDENTIFICADOR '=' expressao { 
