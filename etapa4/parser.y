@@ -116,7 +116,7 @@ cabecalho_funcao:
         symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_FUNCTION, type, NULL);
         symbol_stack_insert_at_bottom(&stack, $1->valor_token, content);
 
-        $$ = asd_new($1->valor_token, type); 
+        $$ = asd_new($1->valor_token, type);
         }
     ;
 
@@ -142,7 +142,16 @@ lista_parametros:
     ;
 
 parametro:
-    TK_IDENTIFICADOR '<' '-' tipo { $$ = NULL; }
+    TK_IDENTIFICADOR '<' '-' tipo {
+        if (symbol_table_find(stack->table, $1->valor_token) != NULL) {
+            semantic_error(ERR_DECLARED, $1->valor_token, get_line_number());
+        }
+
+        symbol_table_content_t *content = create_content(get_line_number(), SYMBOL_NATURE_VARIABLE, $4, NULL);
+        symbol_table_insert(stack->table, $1->valor_token, content);
+
+        $$ = NULL; 
+    }
     ;
 
 bloco_comandos_funcao:

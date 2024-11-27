@@ -1,5 +1,8 @@
-ff = > float{ // trocar nome da funcao para 'f' para ativar o erro
+ff = i <- int | j <- int | k <- int > float{ // trocar nome da funcao para 'f' para ativar o erro
   int a, b;
+  i = 2; // teste de atribuição para variavel declarada no parametro
+  k = 10; // se remover o k ou o i dos parametros, deve resultar em erro
+  // int j <= 3; // erro de redeclaração
   {
     //int a <= 4; // permite redeclarar o a
     a = 3;
@@ -8,6 +11,13 @@ ff = > float{ // trocar nome da funcao para 'f' para ativar o erro
     {
       a = 5; // encontra o a do escopo anterior
       int c <= 100; // permite redeclarar o c
+      int xpto <= 3000;
+      {
+        int abc <= 1000;
+        int xpto <= 2000; // permite redeclarar o xpto
+        abc = 10;
+        xpto = 20; // encontra o xpto do escopo anterior
+      };
     };
     b = 10; // mesmo após bloco, ainda tem acesso ao b do escopo atual
     // c = 5; // tem que dar erro
