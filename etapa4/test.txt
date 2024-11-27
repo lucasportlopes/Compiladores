@@ -15,8 +15,15 @@ ff = i <- int | j <- int | k <- int > float{ // trocar nome da funcao para 'f' p
       {
         int abc <= 1000;
         int xpto <= 2000; // permite redeclarar o xpto
+        int xpto2;
         abc = 10;
         xpto = 20; // encontra o xpto do escopo anterior
+        {
+          float abc <= 1000; // permite redeclarar o abc
+          float xpto <= 2000; // permite redeclarar o xpto
+          abc = 10.1;
+          xpto2 = 20.1;
+        };
       };
     };
     b = 10; // mesmo após bloco, ainda tem acesso ao b do escopo atual
@@ -37,6 +44,14 @@ f = > int{
   c = (c < e) & (c == c);
 
   if(a+b <= 10){};
+
+  return 10;
+}
+
+// fff = i <- float | k <- int | i <- float > int{ // erro de parametro redeclarado
+fff = i <- float | k <- int > int{
+  i = 2.1;
+  // j = 3.1; // erro de variável não declarada
 
   return 10;
 }

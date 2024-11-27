@@ -291,7 +291,7 @@ chamada_funcao:
                 semantic_error(ERR_VARIABLE, $1->valor_token, get_line_number());
             }
 
-            // sprintf(function, "%s %s", CALL, $1->valor_token); 
+            sprintf(function, "%s %s", CALL, $1->valor_token); 
 
             $$ = asd_new(function, content->type);
             asd_add_child($$, $3);
