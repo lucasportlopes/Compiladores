@@ -1,0 +1,57 @@
+ff = i <- int | j <- int | k <- int > float{ // trocar nome da funcao para 'f' para ativar o erro
+  int a, b;
+  i = 2; // teste de atribuição para variavel declarada no parametro
+  k = 10; // se remover o k ou o i dos parametros, deve resultar em erro
+  // int j <= 3; // erro de redeclaração
+  {
+    //int a <= 4; // permite redeclarar o a
+    a = 3;
+    b = 4; // encontra o b do escopo anterior
+    // c = 5; // tem que dar erro
+    {
+      a = 5; // encontra o a do escopo anterior
+      int c <= 100; // permite redeclarar o c
+      int xpto <= 3000;
+      {
+        int abc <= 1000;
+        int xpto <= 2000; // permite redeclarar o xpto
+        int xpto2;
+        abc = 10;
+        xpto = 20; // encontra o xpto do escopo anterior
+        {
+          float abc <= 1000; // permite redeclarar o abc
+          float xpto <= 2000; // permite redeclarar o xpto
+          abc = 10.1;
+          xpto2 = 20.1;
+        };
+      };
+    };
+    b = 10; // mesmo após bloco, ainda tem acesso ao b do escopo atual
+    // c = 5; // tem que dar erro
+  };
+
+  // na árvore o primeiro comando após o bloco está sendo colocado como filho do primeiro nó do bloco, está correto ?
+
+  return 2.1;
+}
+
+f = > int{
+  int a, b, c <= 3, d, e <= 4;
+  a = 3;
+  a = 1 + 1; // type de a = int
+  a = 1.1 + 3; // type de a = float
+
+  c = (c < e) & (c == c);
+
+  if(a+b <= 10){};
+
+  return 10;
+}
+
+// fff = i <- float | k <- int | i <- float > int{ // erro de parametro redeclarado
+fff = i <- float | k <- int > int{
+  i = 2.1;
+  // j = 3.1; // erro de variável não declarada
+
+  return 10;
+}
