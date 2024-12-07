@@ -1,4 +1,4 @@
-ETAPA = etapa4
+ETAPA = etapa5
 
 $(ETAPA): main.o lex.yy.o parser.tab.o asd.c symbol_table.c symbol_stack.c
 	gcc -o $(ETAPA) main.o lex.yy.o parser.tab.o asd.c symbol_table.c symbol_stack.c
@@ -36,10 +36,22 @@ run:
 	cat test.txt | ./$(ETAPA)
 	make graph
 
+runsim:
+	make clean
+	make
+	./$(ETAPA) < programa_teste.txt | ./ilocsim.py -t -i
+
+runsim2:
+	make clean
+	make
+	rm -f saida.txt
+	./$(ETAPA) < programa_teste.txt > saida.txt
+	cat saida.txt | ./ilocsim.py -t -i
+
 tar:
 	tar cvzf $(ETAPA).tgz main.c scanner.l parser.y asd.c asd.h types.h symbol_stack.c symbol_stack.h symbol_table.c symbol_table.h Makefile
 
 .PHONY: clean
 
 clean:
-	rm -f *.o lex.yy.c $(ETAPA) parser.tab.* scanner.lex.c saida.dot result.png saida
+	rm -f *.o lex.yy.c $(ETAPA) parser.tab.* scanner.lex.c saida.dot result.png saida saida.txt

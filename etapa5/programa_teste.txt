@@ -1,0 +1,6 @@
+main = p1 <- int | p2 <- float | p3 <- int > int {
+  int a;
+  a = 1;
+  int a <= 5;
+  return 0;
+}
