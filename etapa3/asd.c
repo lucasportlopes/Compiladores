@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "asd.h"
+#include "code_generation.h"
 #define ARQUIVO_SAIDA "saida.dot"
 
 asd_tree_t *asd_new(const char *label)
@@ -85,13 +86,15 @@ void asd_print_graphviz(asd_tree_t *tree)
 
 void exporta(asd_tree_t *tree)
 {
-  int i;
-  if (tree != NULL) {
-    fprintf(stdout, "%p [label=\"%s\"];\n", tree, tree->label);
-    
-    for (i = 0; i < tree->number_of_children; i++) {
-        fprintf(stdout, "%p, %p\n", tree, tree->children[i]);
-        exporta(tree->children[i]);
-    }
+  if (tree != NULL)
+  {
+    iloc_list_display(tree->operations);
   }
+}
+
+void asd_insert_operation(asd_tree_t *tree, ILOCOperation *operation)
+{
+  if (tree != NULL) {
+    tree->operations = operation;
+  } 
 }
