@@ -1,5 +1,5 @@
-#ifndef INSTUCTIONS_H
-#define INSTUCTIONS_H
+#ifndef INSTRUCTIONS_H
+#define INSTRUCTIONS_H
 
 #define NOP "nop"       // No operation
 
