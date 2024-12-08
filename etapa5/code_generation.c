@@ -49,13 +49,13 @@ ILOCOperationList *iloc_list_create_node(ILOCOperation *operation) {
     return operation_list;
 }
 
-void iloc_insert_list(ILOCOperation *operation, ILOCOperationList **operation_list) {
+void iloc_insert_list(ILOCOperation *operation, ILOCOperationList *operation_list) {
     ILOCOperationList *new_node = iloc_list_create_node(operation);
 
-    if (*operation_list == NULL) {
-        *operation_list = new_node;
+    if (operation_list == NULL) {
+        operation_list = new_node;
     } else {
-        ILOCOperationList *current = *operation_list;
+        ILOCOperationList *current = operation_list;
         while (current->next != NULL) {
             current = current->next;
         }
@@ -81,9 +81,15 @@ void iloc_list_destroy(ILOCOperationList *operation_list) {
     }
 }
 
-ILOCOperationList *iloc_concat_operation_list(ILOCOperationList *list1, ILOCOperationList *list2) {
+ILOCOperationList *iloc_list_concat(ILOCOperationList *list1, ILOCOperationList *list2) {
   // Desenvolver
 }
 
-void iloc_list_display(ILOCOperationList *operation_list) {}
+void *iloc_list_insert_list(ILOCOperationList *list, ILOCOperationList *operation_list) {
+    // Desenvolver
+}
+
+void iloc_list_display(ILOCOperationList *operation_list) {
+    // Desenvolver
+}
 

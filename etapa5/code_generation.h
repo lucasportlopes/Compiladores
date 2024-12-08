@@ -27,8 +27,11 @@ ILOCOperationList *iloc_list_create_node(ILOCOperation *operation);
 // Function to concatenate two ILOC operation lists
 ILOCOperationList *iloc_list_concat(ILOCOperationList *list1, ILOCOperationList *list2);
 
+// Function to insert an list of ILOC operations in an ILOC operation list
+void *iloc_list_insert_list(ILOCOperationList *list, ILOCOperationList *operation_list);
+
 // Function to insert an ILOC operation in an ILOC operation list
-void iloc_list_insert(ILOCOperation *operation, ILOCOperationList **operation_list);
+void iloc_list_insert(ILOCOperation *operation, ILOCOperationList *operation_list);
 
 // Function to destroy an ILOC operation list
 void iloc_list_destroy(ILOCOperationList *operation_list);
