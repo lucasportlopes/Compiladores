@@ -1,6 +1,7 @@
 #ifndef _ARVORE_H_
 #define _ARVORE_H_
 
+#include "code_generation.h"
 typedef enum {
   IDENTIFICADOR,
   LITERAL,
@@ -10,6 +11,8 @@ typedef struct asd_tree {
   char *label;
   int number_of_children;
   struct asd_tree **children;
+  struct ILOCOperationList *operations;
+  char *temp;
 } asd_tree_t;
 
 typedef struct valor_lexico {
