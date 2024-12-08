@@ -38,6 +38,7 @@ symbol_table_content_t *create_content(int line, symbol_table_nature_t nature, s
     content->nature = nature;
     content->type = type;
     content->value = value;
+    content->displacement = 0;
     return content;
 }
 

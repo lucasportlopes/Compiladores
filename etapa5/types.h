@@ -32,6 +32,7 @@ typedef struct {
     symbol_table_nature_t nature;     // Natureza: variável ou função
     symbol_table_type_t type;         // Tipo do dado: int ou float
     valor_lexico_t *value;            // Valor léxico associado ao símbolo
+    int displacement;
 } symbol_table_content_t;
 
 // Estrutura para uma entrada na tabela de símbolos
