@@ -12,6 +12,9 @@ symbol_stack: symbol_stack.h symbol_stack.c main.c
 symbol_table: symbol_table.h symbol_table.c main.c
 	gcc -fsanitize=address -g -Werror -o symbol_table symbol_table.c main.c
 
+code_generation: code_generation.h code_generation.c main.c
+	gcc -fsanitize=address -g -Werror -o code_generation code_generation.c main.c
+
 parser.tab.h: parser.y
 	bison -d -Wcounterexamples parser.y
 
