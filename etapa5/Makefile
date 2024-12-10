@@ -1,7 +1,7 @@
 ETAPA = etapa5
 
-$(ETAPA): main.o lex.yy.o parser.tab.o asd.c symbol_table.c symbol_stack.c
-	gcc -o $(ETAPA) main.o lex.yy.o parser.tab.o asd.c symbol_table.c symbol_stack.c
+$(ETAPA): main.o lex.yy.o parser.tab.o asd.c symbol_table.c symbol_stack.c code_generation.c
+	gcc -o $(ETAPA) main.o lex.yy.o parser.tab.o asd.c symbol_table.c symbol_stack.c code_generation.c
 
 asd: asd.h asd.c main.c
 	gcc -fsanitize=address -g -Werror -o asd asd.c main.c

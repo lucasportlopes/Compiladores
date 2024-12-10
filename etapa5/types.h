@@ -53,4 +53,17 @@ typedef struct symbol_stack_t {
     struct symbol_stack_t *next;
 } symbol_stack_t;
 
+typedef struct {
+    char *opcode;
+    char *source1;
+    char *source2;
+    char *source3;
+    char *label;
+} ILOCOperation;
+
+typedef struct ILOCOperationList {
+    ILOCOperation *operation;
+    struct ILOCOperationList *next;
+} ILOCOperationList;
+
 #endif //_TYPES_H_

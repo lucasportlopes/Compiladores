@@ -6,6 +6,7 @@ void yyerror (char const *mensagem);
 #include <stdio.h>
 #include <string.h>
 #include "symbol_stack.h"
+#include "code_generation.h"
 extern int get_line_number();
 extern void *arvore;
 extern symbol_stack_t *stack;
@@ -203,6 +204,8 @@ declaracao_variavel:
             }
             entry = entry->next;
         }
+
+        // $$->code = $2->code;
     };
     ;
 
@@ -280,6 +283,8 @@ atribuicao:
     	//instrAdd = cria_instrucao("add", "rfp", content.desloc, temp);
     	//instrStore = cria_instrucao("store", $3.local, "rfp", content.desloc);
         //$$.codigo = concatena_instrucoes(...);
+
+        //ILOCOperation *operation = iloc_operation_create("storeAI", $3->local, "rfp", content->displacement, NULL);
     }
     ;
 
@@ -358,6 +363,12 @@ expressao:
         $$ = asd_new("|", type); 
         asd_add_child($$, $1); 
         asd_add_child($$, $3); 
+        
+        $$->local = generate_temp();
+        //ILOCOperation *operation = iloc_operation_create("or", $1->local, $3->local, $$->local, NULL);
+        //$$->code = iloc_list_create_node(operation);
+        //$$->code = iloc_list_concat($1->code, $$->code);
+        //$$->code = iloc_list_concat($$->code, $3->code);
     }
     ;
 
@@ -466,7 +477,8 @@ expressao_precedencia_1:
     	// load -1
     	// ..
     	}
-    | '!' expressao_precedencia_1 {$$ = asd_new("!", $2->type); asd_add_child($$, $2); 
+    | '!' expressao_precedencia_1 {
+        $$ = asd_new("!", $2->type); asd_add_child($$, $2); 
     	// if $2.local == 0 then 1 else 0
     	// CMP_EQ
     }
@@ -478,7 +490,7 @@ literal:
     ;
 
 operandos_simples:
-        literal { $$ = $1; }
+        literal { $$ = $1; $$->code = NULL; }
     |   TK_IDENTIFICADOR {
             symbol_table_content_t *content = symbol_stack_find(&stack, $1->valor_token);
 
@@ -488,14 +500,18 @@ operandos_simples:
                 semantic_error(ERR_FUNCTION, $1->valor_token, get_line_number());
             }
 
-            $$ = asd_new($1->valor_token, content->type); 
+            //$$ = asd_new($1->valor_token, content->type); 
+            //$$->local = generate_temp();
+            //ILOCOperation *operation = iloc_operation_create("loadAI", "rfp", content->desloc, $$->local, NULL);
+            //$$->code = iloc_list_create_node(operation);
  	    //todo
  	    //pega o deslocamento na tabela de simbolos, int desloc = buscaNaTabela($1.value);
  	    //$$.local = geratemp();
  	    //$$.codigo = criaInstrucao("loadAI", "rfp", desloc, $$.local);
         }
-    |   chamada_funcao { $$ = $1; 
-     // $$.codigo = NULL;
+    |   chamada_funcao { 
+        $$ = $1; 
+        $$->code = NULL;
     }
     ;
 %%

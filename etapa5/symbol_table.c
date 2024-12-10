@@ -33,12 +33,18 @@ void symbol_table_free(symbol_table_t *table) {
 }
 
 symbol_table_content_t *create_content(int line, symbol_table_nature_t nature, symbol_table_type_t type, valor_lexico_t *value) {
+    static int displacement = 0;
     symbol_table_content_t *content = malloc(sizeof(symbol_table_content_t));
     content->line = line;
     content->nature = nature;
     content->type = type;
     content->value = value;
-    content->displacement = 0;
+    content->displacement = (nature == SYMBOL_NATURE_VARIABLE) ? displacement : 0;
+    
+    if(nature == SYMBOL_NATURE_VARIABLE) {
+        displacement += 4;
+    }
+
     return content;
 }
 

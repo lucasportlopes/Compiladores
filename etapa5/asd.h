@@ -8,6 +8,8 @@ typedef struct asd_tree {
   int number_of_children;
   struct asd_tree **children;
   symbol_table_type_t type;
+  ILOCOperationList *code;
+  char *local;
 } asd_tree_t;
 
 
