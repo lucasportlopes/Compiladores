@@ -72,6 +72,7 @@ programa:
     abre_escopo lista_funcoes finaliza_pilha { 
         $$ = $2; 
         arvore = $$; 
+        iloc_list_display($$->code);
     }
     ;
 
@@ -94,6 +95,7 @@ funcao:
         $$ = $1;
         if ($2 != NULL) {
             asd_add_child($$, $2);
+            // $$->code = iloc_list_concat($1->code, $2->code);
         }
     }
     ;
@@ -272,19 +274,10 @@ atribuicao:
         $$ = asd_new("=", content->type); 
         asd_add_child($$, asd_new($1->valor_token, content->type)); 
         asd_add_child($$, $3);
-        // gera codigo
-        //iloc_t *instr = NULL;
-        //instr = cria_instrucao("storeAI", $3.local, "rfp", content.desloc);
-        //$$.codigo = concatena_instrucoes($3.codigo, instr);
-    
-    	// se fosse store
-    	//iloc_t *instrStore = NULL;
-    	//temp_t tempo = gera_temp();
-    	//instrAdd = cria_instrucao("add", "rfp", content.desloc, temp);
-    	//instrStore = cria_instrucao("store", $3.local, "rfp", content.desloc);
-        //$$.codigo = concatena_instrucoes(...);
-
-        //ILOCOperation *operation = iloc_operation_create("storeAI", $3->local, "rfp", content->displacement, NULL);
+        
+        //$$->local = generate_temp();
+        //ILOCOperation *store_op = iloc_operation_create("storeAI", $3->local, "rfp", content->displacement, NULL);
+        //$$->code = iloc_list_concat($3->code, iloc_list_create_node(store_op));
     }
     ;
 
@@ -336,6 +329,15 @@ fluxo_controle:
         if ($5 != NULL) { 
             asd_add_child($$, $5); 
         } 
+
+        char *label1 = generate_label();
+        char *label2 = generate_label();
+
+        ILOCOperation *cbr_op = iloc_operation_create("cbr", $3->local, label1, label2, NULL);
+        ILOCOperation *label1_op = iloc_operation_create("label", label1, NULL, NULL, NULL);
+        ILOCOperation *label2_op = iloc_operation_create("label", label2, NULL, NULL, NULL);
+
+        $$->code = iloc_list_concat($3->code, iloc_list_concat(iloc_list_create_node(cbr_op), iloc_list_concat(iloc_list_create_node(label1_op), $5->code)));
     }
     | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos { 
         $$ = asd_new("if", $3->type); 
@@ -365,10 +367,8 @@ expressao:
         asd_add_child($$, $3); 
         
         $$->local = generate_temp();
-        //ILOCOperation *operation = iloc_operation_create("or", $1->local, $3->local, $$->local, NULL);
-        //$$->code = iloc_list_create_node(operation);
-        //$$->code = iloc_list_concat($1->code, $$->code);
-        //$$->code = iloc_list_concat($$->code, $3->code);
+        //ILOCOperation *or_op = iloc_operation_create("or", $1->local, $3->local, $$->local, NULL);
+        //$$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(or_op), $3->code));
     }
     ;
 
@@ -433,12 +433,20 @@ expressao_precedencia_3:
         $$ = asd_new("+", type); 
         asd_add_child($$, $1); 
         asd_add_child($$, $3); 
+        
+        $$->local = generate_temp();
+        ILOCOperation *add_op = iloc_operation_create("add", $1->local, $3->local, $$->local, NULL);
+        $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(add_op), $3->code));
     }
     | expressao_precedencia_3 '-' expressao_precedencia_2 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
         $$ = asd_new("-", type); 
         asd_add_child($$, $1); 
         asd_add_child($$, $3); 
+        
+        $$->local = generate_temp();
+        ILOCOperation *sub_op = iloc_operation_create("sub", $1->local, $3->local, $$->local, NULL);
+        $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(sub_op), $3->code));
     }
     ;
 
@@ -453,20 +461,26 @@ expressao_precedencia_2:
         // iloc_t instrMult = cria_instrucao("mult", $1.local, $3.local, temporario);
         // $$.codigo = concatena3($1.codigo, $3.codigo, instrMult);
         // $$.local = temporario
+        $$->local = generate_temp();
+        ILOCOperation *mult_op = iloc_operation_create("mult", $1->local, $3->local, $$->local, NULL);
+        $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(mult_op), $3->code));
     }
     | expressao_precedencia_2 '/' expressao_precedencia_1 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
         $$ = asd_new("/", type); 
         asd_add_child($$, $1); 
         asd_add_child($$, $3); 
+        $$->local = generate_temp();
+        ILOCOperation *div_op = iloc_operation_create("div", $1->local, $3->local, $$->local, NULL);
+        $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(div_op), $3->code));
     }
     | expressao_precedencia_2 '%' expressao_precedencia_1 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
         $$ = asd_new("%", type); 
         asd_add_child($$, $1); 
         asd_add_child($$, $3); 
-        // $$.codigo = NULL
-        // $$.local = NULL
+        $$->code = NULL;
+        $$->local = NULL;
         }
     ;
 
@@ -476,11 +490,19 @@ expressao_precedencia_1:
     | '-' expressao_precedencia_1 { $$ = asd_new("-", $2->type); asd_add_child($$, $2); 
     	// load -1
     	// ..
+        // fazer load de -1 e multiplicar
+        $$->local = generate_temp();
+        ILOCOperation *mult_op = iloc_operation_create("mult", "-1", $2->local, $$->local, NULL);
+        $$->code = iloc_list_concat(iloc_list_create_node(mult_op), $2->code);
     	}
     | '!' expressao_precedencia_1 {
         $$ = asd_new("!", $2->type); asd_add_child($$, $2); 
     	// if $2.local == 0 then 1 else 0
     	// CMP_EQ
+        $$->local = generate_temp();
+        // gerar rótulos para os jumps
+        //ILOCOperation *cmp_eq_op = iloc_operation_create("cmp_EQ", $2->local, "0", $$->local, NULL);
+        //$$->code = iloc_list_concat($2->code, iloc_list_create_node(cmp_eq_op));
     }
     ;
 
@@ -490,7 +512,12 @@ literal:
     ;
 
 operandos_simples:
-        literal { $$ = $1; $$->code = NULL; }
+        literal { 
+            $$ = $1; 
+            $$->local = generate_temp();
+            ILOCOperation *loadI_op = iloc_operation_create("loadI", $1->label, NULL, $$->local, NULL);
+            $$->code = iloc_list_create_node(loadI_op);
+         }
     |   TK_IDENTIFICADOR {
             symbol_table_content_t *content = symbol_stack_find(&stack, $1->valor_token);
 
@@ -500,18 +527,14 @@ operandos_simples:
                 semantic_error(ERR_FUNCTION, $1->valor_token, get_line_number());
             }
 
-            //$$ = asd_new($1->valor_token, content->type); 
-            //$$->local = generate_temp();
-            //ILOCOperation *operation = iloc_operation_create("loadAI", "rfp", content->desloc, $$->local, NULL);
-            //$$->code = iloc_list_create_node(operation);
- 	    //todo
- 	    //pega o deslocamento na tabela de simbolos, int desloc = buscaNaTabela($1.value);
- 	    //$$.local = geratemp();
- 	    //$$.codigo = criaInstrucao("loadAI", "rfp", desloc, $$.local);
+            $$ = asd_new($1->valor_token, content->type); 
+            $$->local = generate_temp();
+            //ILOCOperation *loadAI_op = iloc_operation_create("loadAI", "rfp", content->displacement, $$->local, NULL);
+            ILOCOperation *loadAI_op = iloc_operation_create("loadAI", "rfp", "deslocamento--", $$->local, NULL);
+            $$->code = iloc_list_create_node(loadAI_op);
         }
     |   chamada_funcao { 
         $$ = $1; 
-        $$->code = NULL;
     }
     ;
 %%
