@@ -437,7 +437,7 @@ expressao_precedencia_3:
         $$->local = generate_temp();
         ILOCOperation *add_op = iloc_operation_create("add", $1->local, $3->local, $$->local, NULL);
         $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(add_op), $3->code));
-        printf("[DEBUG - expressao_precedencia_3 - +] %s %s %s %s\n", add_op->opcode, add_op->source1, add_op->source2, add_op->source3);
+        printf("%s %s, %s => %s\n", add_op->opcode, add_op->source1, add_op->source2, add_op->source3);
     }
     | expressao_precedencia_3 '-' expressao_precedencia_2 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
@@ -448,7 +448,7 @@ expressao_precedencia_3:
         $$->local = generate_temp();
         ILOCOperation *sub_op = iloc_operation_create("sub", $1->local, $3->local, $$->local, NULL);
         $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(sub_op), $3->code));
-        printf("[DEBUG - expressao_precedencia_3 - -] %s %s %s %s\n", sub_op->opcode, sub_op->source1, sub_op->source2, sub_op->source3);
+        printf("%s %s, %s => %s\n", sub_op->opcode, sub_op->source1, sub_op->source2, sub_op->source3);
     }
     ;
 
@@ -466,7 +466,7 @@ expressao_precedencia_2:
         $$->local = generate_temp();
         ILOCOperation *mult_op = iloc_operation_create("mult", $1->local, $3->local, $$->local, NULL);
         $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(mult_op), $3->code));
-        printf("[DEBUG - expressao_precedencia_2 - *] %s %s %s %s\n", mult_op->opcode, mult_op->source1, mult_op->source2, mult_op->source3);
+        printf("%s %s, %s => %s\n", mult_op->opcode, mult_op->source1, mult_op->source2, mult_op->source3);
     }
     | expressao_precedencia_2 '/' expressao_precedencia_1 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
@@ -476,7 +476,7 @@ expressao_precedencia_2:
         $$->local = generate_temp();
         ILOCOperation *div_op = iloc_operation_create("div", $1->local, $3->local, $$->local, NULL);
         $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(div_op), $3->code));
-        printf("[DEBUG - expressao_precedencia_2 - /] %s %s %s %s\n", div_op->opcode, div_op->source1, div_op->source2, div_op->source3);
+        printf("%s %s, %s => %s\n", div_op->opcode, div_op->source1, div_op->source2, div_op->source3);
     }
     | expressao_precedencia_2 '%' expressao_precedencia_1 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
@@ -496,9 +496,12 @@ expressao_precedencia_1:
     	// ..
         // fazer load de -1 e multiplicar
         $$->local = generate_temp();
-        ILOCOperation *mult_op = iloc_operation_create("mult", "-1", $2->local, $$->local, NULL);
+        char *loadReg = generate_temp();
+        ILOCOperation *loadI_op = iloc_operation_create("loadI", "-1", NULL, loadReg, NULL);
+        printf("%s %s => %s\n", loadI_op->opcode, loadI_op->source1, loadI_op->source3);
+        ILOCOperation *mult_op = iloc_operation_create("mult", loadReg, $2->local, $$->local, NULL);
         $$->code = iloc_list_concat(iloc_list_create_node(mult_op), $2->code);
-        printf("[DEBUG - expressao_precedencia_1 - -] %s %s %s %s\n", mult_op->opcode, mult_op->source1, mult_op->source2, mult_op->source3);
+        printf("%s %s, %s => %s\n", mult_op->opcode, mult_op->source1, mult_op->source2, mult_op->source3);
     	}
     | '!' expressao_precedencia_1 {
         $$ = asd_new("!", $2->type); asd_add_child($$, $2); 
@@ -522,7 +525,7 @@ operandos_simples:
             $$->local = generate_temp();
             ILOCOperation *loadI_op = iloc_operation_create("loadI", $1->label, NULL, $$->local, NULL);
             $$->code = iloc_list_create_node(loadI_op);
-            printf("[DEBUG - operandos_simples - literal] %s %s %s\n", loadI_op->opcode, loadI_op->source1, loadI_op->source3);
+            printf("%s %s => %s\n", loadI_op->opcode, loadI_op->source1, loadI_op->source3);
          }
     |   TK_IDENTIFICADOR {
             symbol_table_content_t *content = symbol_stack_find(&stack, $1->valor_token);
@@ -536,9 +539,11 @@ operandos_simples:
             $$ = asd_new($1->valor_token, content->type); 
             $$->local = generate_temp();
             //ILOCOperation *loadAI_op = iloc_operation_create("loadAI", "rfp", content->displacement, $$->local, NULL);
-            ILOCOperation *loadAI_op = iloc_operation_create("loadAI", "rfp", "deslocamento--", $$->local, NULL);
+            char buffer[20];
+            sprintf(buffer, "%d", content->displacement);
+            ILOCOperation *loadAI_op = iloc_operation_create("loadAI", "rfp", buffer, $$->local, NULL);
             $$->code = iloc_list_create_node(loadAI_op);
-            printf("[DEBUG - operandos_simples - TK_IDENTIFICADOR] %s %s %s %s\n", loadAI_op->opcode, loadAI_op->source1, loadAI_op->source2, loadAI_op->source3);
+            printf("%s %s, %s => %s\n", loadAI_op->opcode, loadAI_op->source1, loadAI_op->source2, loadAI_op->source3);
         }
     |   chamada_funcao { 
         $$ = $1; 

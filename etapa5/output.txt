@@ -1,0 +1,16 @@
+loadI 1 => r0
+loadI 3 => r1
+add r0, r1 => r2
+loadI 5 => r3
+loadAI rfp, 12 => r4
+add r3, r4 => r5
+loadAI rfp, 12 => r6
+loadI -1 => r8
+mult r8, r6 => r7
+loadI 1 => r9
+loadI 2 => r10
+div r9, r10 => r11
+loadI 2 => r12
+loadI 4 => r13
+mult r12, r13 => r14
+loadI 0 => r15
