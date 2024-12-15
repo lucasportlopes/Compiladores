@@ -367,8 +367,9 @@ expressao:
         asd_add_child($$, $3); 
         
         $$->local = generate_temp();
-        //ILOCOperation *or_op = iloc_operation_create("or", $1->local, $3->local, $$->local, NULL);
-        //$$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(or_op), $3->code));
+        ILOCOperation *op = iloc_operation_create("or", $1->local, $3->local, $$->local, NULL);
+        $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(op), $3->code));
+        printf("%s %s, %s => %s\n", op->opcode, op->source1, op->source2, op->source3);
     }
     ;
 
@@ -378,7 +379,12 @@ expressao_precedencia_6:
         symbol_table_type_t type = infer_type($1->type, $3->type);
         $$ = asd_new("&", type); 
         asd_add_child($$, $1); 
-        asd_add_child($$, $3); 
+        asd_add_child($$, $3);
+
+        $$->local = generate_temp();
+        ILOCOperation *op = iloc_operation_create("and", $1->local, $3->local, $$->local, NULL);
+        $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(op), $3->code));
+        printf("%s %s, %s => %s\n", op->opcode, op->source1, op->source2, op->source3);
     }
     ;
 
@@ -389,12 +395,22 @@ expressao_precedencia_5:
         $$ = asd_new("==", type); 
         asd_add_child($$, $1); 
         asd_add_child($$, $3); 
+
+        $$->local = generate_temp();
+        ILOCOperation *op = iloc_operation_create("cmp_EQ", $1->local, $3->local, $$->local, NULL);
+        $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(op), $3->code));
+        printf("%s %s, %s => %s\n", op->opcode, op->source1, op->source2, op->source3);
     }
     | expressao_precedencia_5 TK_OC_NE expressao_precedencia_4 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
         $$ = asd_new("!=", type); 
         asd_add_child($$, $1); 
-        asd_add_child($$, $3); 
+        asd_add_child($$, $3);
+
+        $$->local = generate_temp();
+        ILOCOperation *op = iloc_operation_create("cmp_NE", $1->local, $3->local, $$->local, NULL);
+        $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(op), $3->code));
+        printf("%s %s, %s => %s\n", op->opcode, op->source1, op->source2, op->source3);
     }
     ;
 
@@ -405,24 +421,44 @@ expressao_precedencia_4:
         $$ = asd_new("<", type); 
         asd_add_child($$, $1); 
         asd_add_child($$, $3); 
+
+        $$->local = generate_temp();
+        ILOCOperation *op = iloc_operation_create("cmp_LT", $1->local, $3->local, $$->local, NULL);
+        $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(op), $3->code));
+        printf("%s %s, %s => %s\n", op->opcode, op->source1, op->source2, op->source3);
     }
     | expressao_precedencia_4 '>' expressao_precedencia_3 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
         $$ = asd_new(">", type); 
         asd_add_child($$, $1); 
-        asd_add_child($$, $3); 
+        asd_add_child($$, $3);
+
+        $$->local = generate_temp();
+        ILOCOperation *op = iloc_operation_create("cmp_GT", $1->local, $3->local, $$->local, NULL);
+        $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(op), $3->code));
+        printf("%s %s, %s => %s\n", op->opcode, op->source1, op->source2, op->source3);
     }
     | expressao_precedencia_4 TK_OC_LE expressao_precedencia_3 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
         $$ = asd_new("<=", type); 
         asd_add_child($$, $1); 
-        asd_add_child($$, $3); 
+        asd_add_child($$, $3);
+
+        $$->local = generate_temp();
+        ILOCOperation *op = iloc_operation_create("cmp_LE", $1->local, $3->local, $$->local, NULL);
+        $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(op), $3->code));
+        printf("%s %s, %s => %s\n", op->opcode, op->source1, op->source2, op->source3);
     }
     | expressao_precedencia_4 TK_OC_GE expressao_precedencia_3 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
         $$ = asd_new(">=", type); 
         asd_add_child($$, $1); 
         asd_add_child($$, $3); 
+
+        $$->local = generate_temp();
+        ILOCOperation *op = iloc_operation_create("cmp_GE", $1->local, $3->local, $$->local, NULL);
+        $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(op), $3->code));
+        printf("%s %s, %s => %s\n", op->opcode, op->source1, op->source2, op->source3);
     }
     ;
 
@@ -459,10 +495,7 @@ expressao_precedencia_2:
         $$ = asd_new("*", type); 
         asd_add_child($$, $1); 
         asd_add_child($$, $3); 
-        // temp_t temporario = geratemp();
-        // iloc_t instrMult = cria_instrucao("mult", $1.local, $3.local, temporario);
-        // $$.codigo = concatena3($1.codigo, $3.codigo, instrMult);
-        // $$.local = temporario
+
         $$->local = generate_temp();
         ILOCOperation *mult_op = iloc_operation_create("mult", $1->local, $3->local, $$->local, NULL);
         $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(mult_op), $3->code));
@@ -473,6 +506,7 @@ expressao_precedencia_2:
         $$ = asd_new("/", type); 
         asd_add_child($$, $1); 
         asd_add_child($$, $3); 
+
         $$->local = generate_temp();
         ILOCOperation *div_op = iloc_operation_create("div", $1->local, $3->local, $$->local, NULL);
         $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(div_op), $3->code));
@@ -492,9 +526,6 @@ expressao_precedencia_1:
     operandos_simples { $$ = $1; }
     | '(' expressao ')' { $$ = $2; }
     | '-' expressao_precedencia_1 { $$ = asd_new("-", $2->type); asd_add_child($$, $2); 
-    	// load -1
-    	// ..
-        // fazer load de -1 e multiplicar
         $$->local = generate_temp();
         char *loadReg = generate_temp();
         ILOCOperation *loadI_op = iloc_operation_create("loadI", "-1", NULL, loadReg, NULL);
@@ -538,7 +569,6 @@ operandos_simples:
 
             $$ = asd_new($1->valor_token, content->type); 
             $$->local = generate_temp();
-            //ILOCOperation *loadAI_op = iloc_operation_create("loadAI", "rfp", content->displacement, $$->local, NULL);
             char buffer[20];
             sprintf(buffer, "%d", content->displacement);
             ILOCOperation *loadAI_op = iloc_operation_create("loadAI", "rfp", buffer, $$->local, NULL);
