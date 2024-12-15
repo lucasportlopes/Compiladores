@@ -263,7 +263,6 @@ lista_variaveis:
     }
     ;
 
-// TODO
 atribuicao:
     TK_IDENTIFICADOR '=' expressao { 
         symbol_table_content_t *content = symbol_stack_find(&stack, $1->valor_token);
