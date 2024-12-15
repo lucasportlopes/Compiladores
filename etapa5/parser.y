@@ -488,8 +488,7 @@ expressao_precedencia_3:
         asd_add_child($$, $3); 
         $$->local = generate_temp();
         ILOCOperation *add_op = iloc_operation_create("add", $1->local, $3->local, $$->local, NULL);
-        ILOCOperationList *list2 = iloc_list_concat(iloc_list_create_node(add_op), $3->code);
-        $$->code = iloc_list_concat($1->code, list2);
+        $$->code = iloc_list_concat(iloc_list_concat($1->code, $3->code), iloc_list_create_node(add_op));
         //iloc_list_display($$->code);
         //printf("os sources do codigo 1 e 3 são %s e %s\n", $1->code->operation->source1, $3->code->operation->source1);
         //printf("%s %s, %s => %s\n", add_op->opcode, add_op->source1, add_op->source2, add_op->source3);
