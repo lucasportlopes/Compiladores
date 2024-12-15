@@ -83,12 +83,14 @@ void iloc_list_destroy(ILOCOperationList *operation_list) {
 
 ILOCOperationList *iloc_list_concat(ILOCOperationList *list1, ILOCOperationList *list2) {
     ILOCOperationList *result = NULL;
-
+    printf("no concat\n");
     if (list1 == NULL) {
+        printf("list1 is NULL\n");
         return list2;
     }
 
     if (list2 == NULL) {
+        printf("list2 is NULL\n");
         return list1;
     }
 
@@ -154,7 +156,7 @@ void iloc_list_display(ILOCOperationList *operation_list) {
             strcmp(current_list->operation->opcode, LOADA0) == 0 ||
             strcmp(current_list->operation->opcode, CLOADAI) == 0 || 
             strcmp(current_list->operation->opcode, CLOADA0) == 0) {
-            printf("%s %s, %s => %s\n", current_list->operation->opcode, current_list->operation->source1, current_list->operation->source2, current_list->operation->source3);
+            printf("AAAAAA %s %s, %s => %s\n", current_list->operation->opcode, current_list->operation->source1, current_list->operation->source2, current_list->operation->source3);
         } else if (
             strcmp(current_list->operation->opcode, LOADI) == 0 || 
             strcmp(current_list->operation->opcode, LOAD) == 0 || 
@@ -165,18 +167,18 @@ void iloc_list_display(ILOCOperationList *operation_list) {
             strcmp(current_list->operation->opcode, C2C) == 0 || 
             strcmp(current_list->operation->opcode, C2I) == 0 || 
             strcmp(current_list->operation->opcode, I2C) == 0) {
-            printf("%s %s => %s\n", current_list->operation->opcode, current_list->operation->source1, current_list->operation->source2);
+            printf("AAAAA %s %s => %s\n", current_list->operation->opcode, current_list->operation->source1, current_list->operation->source2);
         } else if (
             strcmp(current_list->operation->opcode, STOREAI) == 0 || 
             strcmp(current_list->operation->opcode, STOREAO) == 0 || 
             strcmp(current_list->operation->opcode, CSTOREAI) == 0 || 
             strcmp(current_list->operation->opcode, CSTOREAO) == 0 ||
             strcmp(current_list->operation->opcode, CBR) == 0) {
-            printf("%s %s => %s, %s\n", current_list->operation->opcode, current_list->operation->source1, current_list->operation->source2, current_list->operation->source3);
+            printf("AAAAA %s %s => %s, %s\n", current_list->operation->opcode, current_list->operation->source1, current_list->operation->source2, current_list->operation->source3);
         } else if (
             strcmp(current_list->operation->opcode, JUMPI) == 0 || 
             strcmp(current_list->operation->opcode, JUMP) == 0) {
-            printf("%s => %s\n", current_list->operation->opcode, current_list->operation->source1);
+            printf("AAAAA %s => %s\n", current_list->operation->opcode, current_list->operation->source1);
         }
 
         current_list = current_list->next;
