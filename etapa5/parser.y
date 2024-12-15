@@ -337,7 +337,6 @@ lista_argumentos:
     }
     ;
 
-// TODO
 fluxo_controle:
     TK_PR_IF '(' expressao ')' bloco_comandos {
         $$ = asd_new("if", $3->type); 
@@ -387,19 +386,120 @@ fluxo_controle:
     | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos { 
         $$ = asd_new("if", $3->type); 
         asd_add_child($$, $3); 
+
+        char *temp1 = generate_temp();
+        char *temp2 = generate_temp();
+
+        char *label1 = generate_label();
+        char *label2 = generate_label();
+        char *label3 = generate_label();
+
+        ILOCOperation *zero = iloc_operation_create("loadI", "0", temp1, NULL, NULL); // Carrega 0 será usado para comparar com a expressão
+        ILOCOperation *op = iloc_operation_create("cmp_NE", $3->local, temp1, temp2, NULL); // Compara a expressão com 0
+        ILOCOperation *cbr_op = iloc_operation_create("cbr", $3->local, label1, label2, NULL); // Se a expressão for diferente de 0, vai para label1, senão vai para label2
+        
+        // Implementatação de condicional usando NOP
+        ILOCOperation *label1_op = iloc_operation_create("nop", NULL, NULL, NULL, label1);
+        ILOCOperation *label2_op = iloc_operation_create("nop", NULL, NULL, NULL, label2);
+        ILOCOperation *label3_op = iloc_operation_create("nop", NULL, NULL, NULL, label3);
+
+        ILOCOperationList *block_code = NULL;
+        ILOCOperation *jump_op = NULL;
         if ($5 != NULL) { 
             asd_add_child($$, $5); 
+            block_code = $5->code;
+            jump_op = iloc_operation_create("jumpI", label3, NULL, NULL, NULL);
         } 
+
+        ILOCOperationList *else_code = NULL;
         if ($7 != NULL) { 
-            asd_add_child($$, $7); 
-        }  
+            asd_add_child($$, $7);
+            else_code = $7->code;
+        }
+
+        $$->code = iloc_list_concat(
+            $3->code,
+            iloc_list_concat(
+                iloc_list_create_node(zero),
+                iloc_list_concat(
+                    iloc_list_create_node(op),
+                    iloc_list_concat(
+                        iloc_list_create_node(cbr_op),
+                        iloc_list_concat(
+                            iloc_list_create_node(label1_op),
+                            iloc_list_concat(
+                                block_code,
+                                iloc_list_concat(
+                                    iloc_list_create_node(jump_op),
+                                    iloc_list_concat(
+                                        iloc_list_create_node(label2_op),
+                                        iloc_list_concat(
+                                            else_code,
+                                            iloc_list_create_node(label3_op)
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
     }
     | TK_PR_WHILE '(' expressao ')' bloco_comandos { 
         $$ = asd_new("while", $3->type); 
         asd_add_child($$, $3); 
+
+        char *temp1 = generate_temp();
+        char *temp2 = generate_temp();
+
+        char *condition = generate_label();
+        char *body = generate_label();
+        char *end = generate_label();
+
+        // Implementatação de condicional usando NOP e jumpI 
+        ILOCOperation *condition_op = iloc_operation_create("nop", NULL, NULL, NULL, condition); // Marca o início do loop
+        ILOCOperation *zero = iloc_operation_create("loadI", "0", temp1, NULL, NULL); // Carrega 0 será usado para comparar com a expressão
+
+        ILOCOperation *op = iloc_operation_create("cmp_NE", $3->local, temp1, temp2, NULL); // Compara a expressão com 0
+        ILOCOperation *cbr_op = iloc_operation_create("cbr", $3->local, body, end, NULL); // Se a expressão for diferente de 0, vai para body, senão vai para end
+
+        ILOCOperation *body_op = iloc_operation_create("nop", NULL, NULL, NULL, body); // Marca o início do corpo do loop
+        ILOCOperation *end_op = iloc_operation_create("nop", NULL, NULL, NULL, end); // Marca o fim do loop
+
+        ILOCOperationList *block_code = NULL;
         if ($5 != NULL) { 
             asd_add_child($$, $5); 
+            block_code = $5->code;
         } 
+
+        ILOCOperation *jump_op = iloc_operation_create("jumpI", condition, NULL, NULL, NULL); // Volta para o início do loop
+
+        $$->code = iloc_list_concat(
+            iloc_list_create_node(condition_op),
+            iloc_list_concat(
+                $3->code,
+                iloc_list_concat(
+                    iloc_list_create_node(zero),
+                    iloc_list_concat(
+                        iloc_list_create_node(op),
+                        iloc_list_concat(
+                            iloc_list_create_node(cbr_op),
+                            iloc_list_concat(
+                                iloc_list_create_node(body_op),
+                                iloc_list_concat(
+                                    block_code,
+                                    iloc_list_concat(
+                                        iloc_list_create_node(jump_op),
+                                        iloc_list_create_node(end_op)
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
     }
     ;
 
