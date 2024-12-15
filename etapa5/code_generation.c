@@ -50,20 +50,6 @@ ILOCOperationList *iloc_list_create_node(ILOCOperation *operation) {
     return operation_list;
 }
 
-void iloc_insert_list(ILOCOperation *operation, ILOCOperationList *operation_list) {
-    ILOCOperationList *new_node = iloc_list_create_node(operation);
-
-    if (operation_list == NULL) {
-        operation_list = new_node;
-    } else {
-        ILOCOperationList *current = operation_list;
-        while (current->next != NULL) {
-            current = current->next;
-        }
-        current->next = new_node;
-    }
-}
-
 void iloc_list_destroy(ILOCOperationList *operation_list) {
     ILOCOperationList *current_list = operation_list;
     ILOCOperationList *next_list = NULL;
@@ -82,7 +68,6 @@ void iloc_list_destroy(ILOCOperationList *operation_list) {
 }
 
 ILOCOperationList *iloc_list_concat(ILOCOperationList *list1, ILOCOperationList *list2) {
-    // ILOCOperationList *result = NULL;
     if (list1 == NULL) {
         return list2;
     }
@@ -91,20 +76,6 @@ ILOCOperationList *iloc_list_concat(ILOCOperationList *list1, ILOCOperationList 
         return list1;
     }
 
-    // ILOCOperationList *current = list1;
-    // while (current != NULL) {
-    //     printf("no while curr é %s\n", current->operation->opcode);
-    //     iloc_insert_list(current->operation, result);
-    //     current = current->next;
-    // }
-
-    // current = list2;
-    // while (current != NULL) {
-    //     iloc_insert_list(current->operation, result);
-    //     current = current->next;
-    // }
-    
-    // return result;
     ILOCOperationList *result = list1;
 
     ILOCOperationList *current = list1;
@@ -115,15 +86,6 @@ ILOCOperationList *iloc_list_concat(ILOCOperationList *list1, ILOCOperationList 
     current->next = list2;
 
     return result;
-}
-
-void *iloc_list_insert_list(ILOCOperationList *list, ILOCOperationList *operation_list) {
-    ILOCOperationList *current_list = operation_list;
-
-    while (current_list != NULL) {
-        iloc_insert_list(current_list->operation, list);
-        current_list = current_list->next;
-    }
 }
 
 void iloc_list_display(ILOCOperationList *operation_list) {

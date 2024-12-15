@@ -199,19 +199,10 @@ comandos:
 
 comando_simples: 
     declaracao_variavel ';' {  $$ = $1; }
-    | atribuicao ';' {  
-        $$ = $1; 
-        $$->code = $1->code;
-    }
-    | fluxo_controle ';' {  
-        $$ = $1; 
-        $$->code = $1->code;
-    }
+    | atribuicao ';' {  $$ = $1; }
+    | fluxo_controle ';' {  $$ = $1; }
     | operacao_retorno ';' {  $$ = $1; }
-    | abre_escopo bloco_comandos fecha_escopo ';' { 
-        $$ = $2; 
-        $$->code = $2->code;
-    }
+    | abre_escopo bloco_comandos fecha_escopo ';' { $$ = $2; }
     | chamada_funcao ';'  {  $$ = $1; }
     ;
 
@@ -298,6 +289,9 @@ atribuicao:
         char buffer[20];
         sprintf(buffer, "%d", content->displacement);
         ILOCOperation *store_op = iloc_operation_create("storeAI", $3->local, "rfp", buffer, NULL);
+        printf("\t\t\n\tstoreAI %s, rfp, %d\n", $3->local, content->displacement);
+        ILOCOperationList *debugOp = iloc_list_create_node(store_op);
+        printf("debugop displacement %s\n", debugOp->operation->source3);
         $$->code = iloc_list_concat($3->code, iloc_list_create_node(store_op));
     }
     ;

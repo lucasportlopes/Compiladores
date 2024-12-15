@@ -32,6 +32,7 @@ main = p1 <- int | p2 <- float | p3 <- int > int {
   x = 2 / 1;
   x = -4;
   x = !1;
-
+  x = a + b;
+  a = x;
   return 0;
 }
