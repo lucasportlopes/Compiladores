@@ -282,6 +282,10 @@ atribuicao:
         //$$->local = generate_temp();
         //ILOCOperation *store_op = iloc_operation_create("storeAI", $3->local, "rfp", content->displacement, NULL);
         //$$->code = iloc_list_concat($3->code, iloc_list_create_node(store_op));
+
+
+
+
     }
     ;
 
@@ -554,21 +558,20 @@ expressao_precedencia_1:
     }
     ;
 
-// TODO
 literal: 
-    TK_LIT_INT { $$ = asd_new($1->valor_token, SYMBOL_TYPE_INT); }
+    TK_LIT_INT { 
+        $$ = asd_new($1->valor_token, SYMBOL_TYPE_INT);
+        
+        $$->local = generate_temp();
+        ILOCOperation *loadI_op = iloc_operation_create("loadI", $$->label, $$->local, NULL, NULL);
+        $$->code = iloc_list_create_node(loadI_op);
+        printf("%s %s => %s\n", loadI_op->opcode, loadI_op->source1, loadI_op->source3); 
+    }
     | TK_LIT_FLOAT { $$ = asd_new($1->valor_token, SYMBOL_TYPE_FLOAT); }
     ;
 
-// TODO
 operandos_simples:
-        literal { 
-            $$ = $1; 
-            $$->local = generate_temp();
-            ILOCOperation *loadI_op = iloc_operation_create("loadI", $1->label, NULL, $$->local, NULL);
-            $$->code = iloc_list_create_node(loadI_op);
-            printf("%s %s => %s\n", loadI_op->opcode, loadI_op->source1, loadI_op->source3);
-         }
+        literal { $$ = $1; }
     |   TK_IDENTIFICADOR {
             symbol_table_content_t *content = symbol_stack_find(&stack, $1->valor_token);
 
