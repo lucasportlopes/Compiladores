@@ -81,7 +81,6 @@ finaliza_pilha: {
     symbol_stack_free(&stack);
 };
 
-// TODO
 lista_funcoes:
     empty { $$ = NULL; }
     | funcao lista_funcoes {
@@ -289,12 +288,10 @@ atribuicao:
     }
     ;
 
-// TODO
 operacao_retorno: 
     TK_PR_RETURN expressao { $$ = asd_new("return", $2->type); asd_add_child($$, $2); }
     ;
 
-// TODO
 chamada_funcao:
     TK_IDENTIFICADOR '(' lista_argumentos ')' {
         const char *CALL = "call";
@@ -322,7 +319,6 @@ chamada_funcao:
     }
     ;
 
-// TODO
 lista_argumentos:
     expressao { 
         $$ = $1;
