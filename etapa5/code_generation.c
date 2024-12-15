@@ -96,6 +96,7 @@ ILOCOperationList *iloc_list_concat(ILOCOperationList *list1, ILOCOperationList 
 
     ILOCOperationList *current = list1;
     while (current != NULL) {
+        printf("no while curr é %s\n", current->operation->opcode);
         iloc_insert_list(current->operation, result);
         current = current->next;
     }
