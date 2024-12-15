@@ -348,18 +348,47 @@ fluxo_controle:
     TK_PR_IF '(' expressao ')' bloco_comandos {
         $$ = asd_new("if", $3->type); 
         asd_add_child($$, $3); 
-        if ($5 != NULL) { 
-            asd_add_child($$, $5); 
-        } 
+        
+        char *temp1 = generate_temp();
+        char *temp2 = generate_temp();
 
         char *label1 = generate_label();
         char *label2 = generate_label();
 
-        ILOCOperation *cbr_op = iloc_operation_create("cbr", $3->local, label1, label2, NULL);
-        ILOCOperation *label1_op = iloc_operation_create("label", label1, NULL, NULL, NULL);
-        ILOCOperation *label2_op = iloc_operation_create("label", label2, NULL, NULL, NULL);
 
-        $$->code = iloc_list_concat($3->code, iloc_list_concat(iloc_list_create_node(cbr_op), iloc_list_concat(iloc_list_create_node(label1_op), $5->code)));
+        ILOCOperation *zero = iloc_operation_create("loadI", "0", temp1, NULL, NULL); // Carrega 0 será usado para comparar com a expressão
+        ILOCOperation *op = iloc_operation_create("cmp_NE", $3->local, temp1, temp2, NULL); // Compara a expressão com 0
+        ILOCOperation *cbr_op = iloc_operation_create("cbr", $3->local, label1, label2, NULL); // Se a expressão for diferente de 0, vai para label1, senão vai para label2
+        
+        // Implementatação de condicional usando NOP
+        ILOCOperation *label1_op = iloc_operation_create("nop", NULL, NULL, NULL, label1);
+        ILOCOperation *label2_op = iloc_operation_create("nop", NULL, NULL, NULL, label2);
+
+        ILOCOperationList *block_code = NULL;
+        if ($5 != NULL) { 
+            asd_add_child($$, $5); 
+            block_code = $5->code;
+        }
+        
+        $$->code = iloc_list_concat(
+            $3->code,
+            iloc_list_concat(
+                iloc_list_create_node(zero),
+                iloc_list_concat(
+                    iloc_list_create_node(op),
+                    iloc_list_concat(
+                        iloc_list_create_node(cbr_op),
+                        iloc_list_concat(
+                            iloc_list_create_node(label1_op),
+                            iloc_list_concat(
+                                block_code,
+                                iloc_list_create_node(label2_op)
+                            )
+                        )
+                    )
+                )
+            )
+        );
     }
     | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos { 
         $$ = asd_new("if", $3->type); 
