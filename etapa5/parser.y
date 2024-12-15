@@ -561,11 +561,11 @@ expressao_precedencia_1:
 literal: 
     TK_LIT_INT { 
         $$ = asd_new($1->valor_token, SYMBOL_TYPE_INT);
-        
+
         $$->local = generate_temp();
         ILOCOperation *loadI_op = iloc_operation_create("loadI", $$->label, $$->local, NULL, NULL);
         $$->code = iloc_list_create_node(loadI_op);
-        printf("%s %s => %s\n", loadI_op->opcode, loadI_op->source1, loadI_op->source3); 
+        printf("%s %s => %s\n", loadI_op->opcode, loadI_op->source1, loadI_op->source2); 
     }
     | TK_LIT_FLOAT { $$ = asd_new($1->valor_token, SYMBOL_TYPE_FLOAT); }
     ;
