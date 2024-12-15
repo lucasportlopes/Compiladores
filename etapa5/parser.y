@@ -534,7 +534,6 @@ expressao_precedencia_2:
         }
     ;
 
-// TODO
 expressao_precedencia_1:
     operandos_simples { $$ = $1; }
     | '(' expressao ')' { $$ = $2; }
@@ -549,12 +548,11 @@ expressao_precedencia_1:
     	}
     | '!' expressao_precedencia_1 {
         $$ = asd_new("!", $2->type); asd_add_child($$, $2); 
-    	// if $2.local == 0 then 1 else 0
-    	// CMP_EQ
+
         $$->local = generate_temp();
-        // gerar rótulos para os jumps
-        //ILOCOperation *cmp_eq_op = iloc_operation_create("cmp_EQ", $2->local, "0", $$->local, NULL);
-        //$$->code = iloc_list_concat($2->code, iloc_list_create_node(cmp_eq_op));
+        ILOCOperation *op = iloc_operation_create("xorI", $2->local, "-1", $$->local, NULL);
+        $$->code = iloc_list_concat(iloc_list_create_node(op), $2->code);
+        printf("%s %s, %s => %s\n", op->opcode, op->source1, op->source2, op->source3);
     }
     ;
 
