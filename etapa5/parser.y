@@ -68,6 +68,7 @@ extern symbol_stack_t *stack;
 %type<symbol_table_type> tipo
 %%
 
+// TODO
 programa:
     abre_escopo lista_funcoes finaliza_pilha { 
         $$ = $2; 
@@ -80,6 +81,7 @@ finaliza_pilha: {
     symbol_stack_free(&stack);
 };
 
+// TODO
 lista_funcoes:
     empty { $$ = NULL; }
     | funcao lista_funcoes {
@@ -90,6 +92,7 @@ lista_funcoes:
     }
     ;
 
+// TODO
 funcao: 
     cabecalho_funcao bloco_comandos_funcao fecha_escopo {
         $$ = $1;
@@ -261,6 +264,7 @@ lista_variaveis:
     }
     ;
 
+// TODO
 atribuicao:
     TK_IDENTIFICADOR '=' expressao { 
         symbol_table_content_t *content = symbol_stack_find(&stack, $1->valor_token);
@@ -281,10 +285,12 @@ atribuicao:
     }
     ;
 
+// TODO
 operacao_retorno: 
     TK_PR_RETURN expressao { $$ = asd_new("return", $2->type); asd_add_child($$, $2); }
     ;
 
+// TODO
 chamada_funcao:
     TK_IDENTIFICADOR '(' lista_argumentos ')' {
         const char *CALL = "call";
@@ -312,6 +318,7 @@ chamada_funcao:
     }
     ;
 
+// TODO
 lista_argumentos:
     expressao { 
         $$ = $1;
@@ -322,6 +329,7 @@ lista_argumentos:
     }
     ;
 
+// TODO
 fluxo_controle:
     TK_PR_IF '(' expressao ')' bloco_comandos {
         $$ = asd_new("if", $3->type); 
@@ -522,6 +530,7 @@ expressao_precedencia_2:
         }
     ;
 
+// TODO
 expressao_precedencia_1:
     operandos_simples { $$ = $1; }
     | '(' expressao ')' { $$ = $2; }
@@ -545,11 +554,13 @@ expressao_precedencia_1:
     }
     ;
 
+// TODO
 literal: 
     TK_LIT_INT { $$ = asd_new($1->valor_token, SYMBOL_TYPE_INT); }
     | TK_LIT_FLOAT { $$ = asd_new($1->valor_token, SYMBOL_TYPE_FLOAT); }
     ;
 
+// TODO
 operandos_simples:
         literal { 
             $$ = $1; 
