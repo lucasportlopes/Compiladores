@@ -278,13 +278,13 @@ atribuicao:
         asd_add_child($$, asd_new($1->valor_token, content->type)); 
         asd_add_child($$, $3);
         
-        //$$->local = generate_temp();
-        //ILOCOperation *store_op = iloc_operation_create("storeAI", $3->local, "rfp", content->displacement, NULL);
-        //$$->code = iloc_list_concat($3->code, iloc_list_create_node(store_op));
+        $$->local = generate_temp();
+        char buffer[20];
+        sprintf(buffer, "%d", content->displacement);
 
-
-
-
+        ILOCOperation *store_op = iloc_operation_create("storeAI", $3->local, "rfp", buffer, NULL);
+        $$->code = iloc_list_concat($3->code, iloc_list_create_node(store_op));
+        printf("%s %s, %s => %s\n", store_op->opcode, store_op->source1, store_op->source2, store_op->source3);
     }
     ;
 
