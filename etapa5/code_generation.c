@@ -117,15 +117,6 @@ ILOCOperationList *iloc_list_concat(ILOCOperationList *list1, ILOCOperationList 
     return result;
 }
 
-void *iloc_list_insert_list(ILOCOperationList *list, ILOCOperationList *operation_list) {
-    ILOCOperationList *current_list = operation_list;
-
-    while (current_list != NULL) {
-        iloc_insert_list(current_list->operation, list);
-        current_list = current_list->next;
-    }
-}
-
 void iloc_list_display(ILOCOperationList *operation_list) {
     ILOCOperationList *current_list = operation_list;
 
