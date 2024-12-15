@@ -12,5 +12,5 @@ loadI 2 => r10
 div r9, r10 => r11
 loadI 2 => r12
 loadI 4 => r13
-mult r12, r13 => r14
+mult r12, r13 => r14gsg
 loadI 0 => r15
