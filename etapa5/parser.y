@@ -73,7 +73,7 @@ programa:
         $$ = $2; 
         arvore = $$; 
         $$->code = $2->code;
-        //iloc_list_display($$->code);
+        iloc_list_display($$->code);
     }
     ;
 
@@ -301,7 +301,7 @@ atribuicao:
         ILOCOperation *store_op = iloc_operation_create("storeAI", $3->local, "rfp", buffer, NULL);
         $$->code = iloc_list_concat($3->code, iloc_list_create_node(store_op));
         //iloc_list_display($$->code);
-        printf("%s %s => %s, %s\n", store_op->opcode, store_op->source1, store_op->source2, store_op->source3);
+        //printf("%s %s => %s, %s\n", store_op->opcode, store_op->source1, store_op->source2, store_op->source3);
     }
     ;
 
@@ -490,9 +490,9 @@ expressao_precedencia_3:
         ILOCOperation *add_op = iloc_operation_create("add", $1->local, $3->local, $$->local, NULL);
         ILOCOperationList *list2 = iloc_list_concat(iloc_list_create_node(add_op), $3->code);
         $$->code = iloc_list_concat($1->code, list2);
-        iloc_list_display($$->code);
-        printf("os sources do codigo 1 e 3 são %s e %s\n", $1->code->operation->source1, $3->code->operation->source1);
-        printf("%s %s, %s => %s\n", add_op->opcode, add_op->source1, add_op->source2, add_op->source3);
+        //iloc_list_display($$->code);
+        //printf("os sources do codigo 1 e 3 são %s e %s\n", $1->code->operation->source1, $3->code->operation->source1);
+        //printf("%s %s, %s => %s\n", add_op->opcode, add_op->source1, add_op->source2, add_op->source3);
     }
     | expressao_precedencia_3 '-' expressao_precedencia_2 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
@@ -516,7 +516,7 @@ expressao_precedencia_2:
         $$->local = generate_temp();
         ILOCOperation *mult_op = iloc_operation_create("mult", $1->local, $3->local, $$->local, NULL);
         $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(mult_op), $3->code));
-        printf("%s %s, %s => %s\n", mult_op->opcode, mult_op->source1, mult_op->source2, mult_op->source3);
+        //printf("%s %s, %s => %s\n", mult_op->opcode, mult_op->source1, mult_op->source2, mult_op->source3);
     }
     | expressao_precedencia_2 '/' expressao_precedencia_1 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
@@ -526,7 +526,7 @@ expressao_precedencia_2:
         $$->local = generate_temp();
         ILOCOperation *div_op = iloc_operation_create("div", $1->local, $3->local, $$->local, NULL);
         $$->code = iloc_list_concat($1->code, iloc_list_concat(iloc_list_create_node(div_op), $3->code));
-        printf("%s %s, %s => %s\n", div_op->opcode, div_op->source1, div_op->source2, div_op->source3);
+        //printf("%s %s, %s => %s\n", div_op->opcode, div_op->source1, div_op->source2, div_op->source3);
     }
     | expressao_precedencia_2 '%' expressao_precedencia_1 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
@@ -565,7 +565,7 @@ literal:
         $$->local = generate_temp();
         ILOCOperation *loadI_op = iloc_operation_create("loadI", $$->label, $$->local, NULL, NULL);
         $$->code = iloc_list_create_node(loadI_op);
-        printf("%s %s => %s\n", loadI_op->opcode, loadI_op->source1, loadI_op->source2); 
+        //printf("%s %s => %s\n", loadI_op->opcode, loadI_op->source1, loadI_op->source2); 
     }
     | TK_LIT_FLOAT { $$ = asd_new($1->valor_token, SYMBOL_TYPE_FLOAT); }
     ;
@@ -586,7 +586,7 @@ operandos_simples:
             sprintf(buffer, "%d", content->displacement);
             ILOCOperation *loadAI_op = iloc_operation_create("loadAI", "rfp", buffer, $$->local, NULL);
             $$->code = iloc_list_create_node(loadAI_op);
-            printf("%s %s, %s => %s\n", loadAI_op->opcode, loadAI_op->source1, loadAI_op->source2, loadAI_op->source3);
+            //printf("%s %s, %s => %s\n", loadAI_op->opcode, loadAI_op->source1, loadAI_op->source2, loadAI_op->source3);
         }
     |   chamada_funcao { 
         $$ = $1; 
