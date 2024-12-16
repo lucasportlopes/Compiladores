@@ -72,7 +72,6 @@ programa:
     abre_escopo lista_funcoes finaliza_pilha { 
         $$ = $2; 
         arvore = $$; 
-        $$->code = $2->code;
         iloc_list_display($$->code);
     }
     ;
@@ -88,7 +87,6 @@ lista_funcoes:
         if ($2 != NULL) {
             asd_add_child($$, $2);
         }
-        $$->code = $1->code;
     }
     ;
 
@@ -184,10 +182,8 @@ comandos:
             $$->code = iloc_list_concat($1->code, $2->code);
         } else if ($1 != NULL) {
             $$ = $1;
-            $$->code = $1->code;
         } else if ($2 != NULL) {
             $$ = $2;
-            $$->code = $2->code;
         } else {
             $$ = NULL;
         }
