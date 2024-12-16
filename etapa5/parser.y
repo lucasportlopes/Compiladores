@@ -73,7 +73,7 @@ programa:
         $$ = $2; 
         arvore = $$; 
         $$->code = $2->code;
-        iloc_list_display($$->code);
+        //iloc_list_display($$->code);
     }
     ;
 
@@ -88,7 +88,6 @@ lista_funcoes:
         if ($2 != NULL) {
             asd_add_child($$, $2);
         }
-        //$$->code = iloc_list_concat($1->code, $2->code);
         $$->code = $1->code;
     }
     ;
@@ -119,7 +118,7 @@ cabecalho_funcao:
             type = SYMBOL_TYPE_FLOAT;
         }
 
-        symbol_table_content_t *content = create_content(get_line_number(),  SYMBOL_NATURE_FUNCTION, type, NULL);
+        symbol_table_content_t *content = create_content(get_line_number(), SYMBOL_NATURE_FUNCTION, type, NULL);
         symbol_stack_insert_at_bottom(&stack, $1->valor_token, content);
 
         $$ = asd_new($1->valor_token, type);
@@ -289,9 +288,6 @@ atribuicao:
         char buffer[20];
         sprintf(buffer, "%d", content->displacement);
         ILOCOperation *store_op = iloc_operation_create("storeAI", $3->local, "rfp", buffer, NULL);
-        printf("\t\t\n\tstoreAI %s, rfp, %d\n", $3->local, content->displacement);
-        ILOCOperationList *debugOp = iloc_list_create_node(store_op);
-        printf("debugop displacement %s\n", debugOp->operation->source3);
         $$->code = iloc_list_concat($3->code, iloc_list_create_node(store_op));
     }
     ;
@@ -598,9 +594,12 @@ expressao_precedencia_3:
         $$ = asd_new("+", type); 
         asd_add_child($$, $1); 
         asd_add_child($$, $3); 
+        //printf("$1code displacement %s\n", $1->code->operation->source2);
+        //printf("$3code displacement %s\n", $3->code->operation->source2);
         $$->local = generate_temp();
         ILOCOperation *add_op = iloc_operation_create("add", $1->local, $3->local, $$->local, NULL);
         $$->code = iloc_list_concat(iloc_list_concat($1->code, $3->code), iloc_list_create_node(add_op));
+        iloc_list_display($1->code);
     }
     | expressao_precedencia_3 '-' expressao_precedencia_2 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);
