@@ -73,7 +73,7 @@ programa:
         $$ = $2; 
         arvore = $$; 
         $$->code = $2->code;
-        //iloc_list_display($$->code);
+        iloc_list_display($$->code);
     }
     ;
 
@@ -593,13 +593,10 @@ expressao_precedencia_3:
         symbol_table_type_t type = infer_type($1->type, $3->type);
         $$ = asd_new("+", type); 
         asd_add_child($$, $1); 
-        asd_add_child($$, $3); 
-        //printf("$1code displacement %s\n", $1->code->operation->source2);
-        //printf("$3code displacement %s\n", $3->code->operation->source2);
+        asd_add_child($$, $3);
         $$->local = generate_temp();
         ILOCOperation *add_op = iloc_operation_create("add", $1->local, $3->local, $$->local, NULL);
         $$->code = iloc_list_concat(iloc_list_concat($1->code, $3->code), iloc_list_create_node(add_op));
-        iloc_list_display($1->code);
     }
     | expressao_precedencia_3 '-' expressao_precedencia_2 { 
         symbol_table_type_t type = infer_type($1->type, $3->type);

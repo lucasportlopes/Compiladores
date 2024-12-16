@@ -27,11 +27,11 @@ ILOCOperation *iloc_operation_create(char *opcode, char *source1, char *source2,
         exit(EXIT_FAILURE);
     }
 
-    operation->opcode = opcode;
-    operation->source1 = source1;
-    operation->source2 = source2;
-    operation->source3 = source3;
-    operation->label = label;
+    operation->opcode = strdup(opcode);
+    operation->source1 = source1 ? strdup(source1) : NULL;
+    operation->source2 = source2 ? strdup(source2) : NULL;
+    operation->source3 = source3 ? strdup(source3) : NULL;
+    operation->label = label ? strdup(label) : NULL;
     
     return operation;
 }
