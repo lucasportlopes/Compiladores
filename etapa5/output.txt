@@ -99,11 +99,6 @@ storeAI r96 => rfp, 32
 loadI 4 => r99
 loadI 0 => r101
 cmp_EQ r99, r101 => r100
-cbr r100 => L0, L1
-L0:
-loadI 1 => r100
-L1:
-loadI 0 => r100
 storeAI r100 => rfp, 32
 loadAI rfp, 12 => r103
 loadAI rfp, 16 => r104
@@ -116,34 +111,34 @@ loadI 10 => r110
 cmp_LT r109, r110 => r111
 loadI 0 => r116
 cmp_NE r111, r116 => r117
-cbr r111 => L2, L3
-L2:
+cbr r111 => L0, L1
+L0:
 loadI 1 => r112
 storeAI r112 => rfp, 12
-jumpI => L4
-L3:
+jumpI => L2
+L1:
 loadI 2 => r114
 storeAI r114 => rfp, 12
-L4:
-L5:
+L2:
+L3:
 loadAI rfp, 36 => r119
 loadI 2 => r120
 cmp_LT r119, r120 => r121
 loadI 0 => r126
 cmp_NE r121, r126 => r127
-cbr r121 => L6, L7
-L6:
+cbr r121 => L4, L5
+L4:
 loadAI rfp, 36 => r122
 loadI 1 => r123
 add r122, r123 => r124
 storeAI r124 => rfp, 36
-jumpI => L5
-L7:
+jumpI => L3
+L5:
 loadAI rfp, 12 => r128
 loadI 1 => r129
 cmp_EQ r128, r129 => r130
 loadI 0 => r131
 cmp_NE r130, r131 => r132
-cbr r130 => L8, L9
-L8:
-L9:
+cbr r130 => L6, L7
+L6:
+L7:

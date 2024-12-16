@@ -52,7 +52,7 @@ runsim2:
 	cat saida.txt | ./ilocsim.py -t -i
 
 tar:
-	tar cvzf $(ETAPA).tgz main.c scanner.l parser.y asd.c asd.h types.h symbol_stack.c symbol_stack.h symbol_table.c symbol_table.h Makefile
+	tar cvzf $(ETAPA).tgz main.c scanner.l parser.y asd.c asd.h types.h symbol_stack.c symbol_stack.h symbol_table.c symbol_table.h code_generation.c code_generation.h instructions.h ./ilocsim.py Makefile
 
 .PHONY: clean
 
