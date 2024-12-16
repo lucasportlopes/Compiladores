@@ -34,4 +34,15 @@ main = p1 <- int | p2 <- float | p3 <- int > int {
   x = !1;
   x = a + b;
   a = x;
+  if(a < 10) {
+    a = 1;
+  } else {
+    a = 2;
+  };
+  int i <= 0;
+  while(i < 2) {
+    i = i + 1;
+  };
+  if(a == 1) {
+  };
 }

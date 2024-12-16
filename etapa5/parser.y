@@ -161,15 +161,13 @@ parametro:
 
 bloco_comandos_funcao:
     '{' comandos  '}' {  
-        $$ = $2; 
-        $$->code = $2->code; 
+        $$ = $2;
     }
     ;
 
 bloco_comandos: 
     '{' comandos '}' {  
         $$ = $2;
-        $$->code = $2->code;
     }
     ;
 
