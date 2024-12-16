@@ -31,7 +31,7 @@ main = p1 <- int | p2 <- float | p3 <- int > int {
   int x;
   x = 2 / 1;
   x = -4;
-  x = !1;
+  x = !4;
   x = a + b;
   a = x;
   if(a < 10) {
