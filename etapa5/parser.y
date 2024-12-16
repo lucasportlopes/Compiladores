@@ -653,11 +653,10 @@ expressao_precedencia_1:
         asd_add_child($$, $2);
 
         $$->local = generate_temp();
-        char *temp_zero = generate_temp();
+        char *temp = generate_temp();
 
-        ILOCOperation *load_zero = iloc_operation_create("loadI", "0", temp_zero, NULL, NULL);
-
-        ILOCOperation *cmp_eq = iloc_operation_create("cmp_EQ", $2->local, temp_zero, $$->local, NULL);
+        ILOCOperation *load_zero = iloc_operation_create("loadI", "0", temp, NULL, NULL);
+        ILOCOperation *cmp_eq = iloc_operation_create("cmp_EQ", $2->local, temp, $$->local, NULL);
 
         $$->code = iloc_list_concat(
             $2->code,
