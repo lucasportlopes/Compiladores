@@ -649,31 +649,23 @@ expressao_precedencia_1:
         $$->code = iloc_list_concat(iloc_list_concat($2->code, iloc_list_create_node(loadI_op)), iloc_list_create_node(mult_op));
     	}
     | '!' expressao_precedencia_1 {
-        $$ = asd_new("!", $2->type); asd_add_child($$, $2); 
-        // if $2->local == 0, then $$.local = 1 else $$.local = 0
+        $$ = asd_new("!", $2->type);
+        asd_add_child($$, $2);
+
         $$->local = generate_temp();
-        char *loadReg = generate_temp();
-        ILOCOperation *loadI_op = iloc_operation_create("loadI", "0", loadReg, NULL , NULL);
-        ILOCOperation *cmp_op = iloc_operation_create("cmp_EQ", $2->local, loadReg, $$->local, NULL);
-        char *label1 = generate_label();
-        char *label2 = generate_label();
-        ILOCOperation *cbr_op = iloc_operation_create("cbr", $$->local, label1, label2, NULL);
-        ILOCOperation *label1_op = iloc_operation_create("nop", NULL, NULL, NULL, label1);
-        ILOCOperation *loadI_op2 = iloc_operation_create("loadI", "1", $$->local, NULL , NULL);
-        ILOCOperation *label2_op = iloc_operation_create("nop", NULL, NULL, NULL, label2);
-        ILOCOperation *loadI_op3 = iloc_operation_create("loadI", "0", $$->local, NULL , NULL);
+        char *temp_zero = generate_temp();
+
+        ILOCOperation *load_zero = iloc_operation_create("loadI", "0", temp_zero, NULL, NULL);
+
+        ILOCOperation *cmp_eq = iloc_operation_create("cmp_EQ", $2->local, temp_zero, $$->local, NULL);
+
         $$->code = iloc_list_concat(
-                    iloc_list_concat(
-                        iloc_list_concat(
-                            iloc_list_concat(
-                                iloc_list_concat(
-                                    iloc_list_concat(
-                                        iloc_list_concat(
-                                            $2->code, iloc_list_create_node(loadI_op)),
-                                             iloc_list_create_node(cmp_op)), 
-                                             iloc_list_create_node(cbr_op)),
-                                              iloc_list_create_node(label1_op)), 
-                                              iloc_list_create_node(loadI_op2)), iloc_list_create_node(label2_op)), iloc_list_create_node(loadI_op3));
+            $2->code,
+            iloc_list_concat(
+                iloc_list_create_node(load_zero),
+                iloc_list_create_node(cmp_eq)
+            )
+        );
     }
     ;
 
