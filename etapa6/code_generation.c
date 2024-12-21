@@ -155,6 +155,16 @@ void iloc_list_display(ILOCOperationList *operation_list) {
     }
 }
 
+const char* map_register(const char* iloc_register) {
+    if (strcmp(iloc_register, "r0") == 0) return "%rax";
+    if (strcmp(iloc_register, "r1") == 0) return "%rbx";
+    if (strcmp(iloc_register, "r2") == 0) return "%rcx";
+    if (strcmp(iloc_register, "r3") == 0) return "%rdx";
+    if (strcmp(iloc_register, "r4") == 0) return "%rsi";
+    if (strcmp(iloc_register, "r5") == 0) return "%rdi";
+    return iloc_register; 
+}
+
 void asm_list_display(ILOCOperationList *operation_list) {
     ILOCOperationList *current_list = operation_list;
 
@@ -165,15 +175,49 @@ void asm_list_display(ILOCOperationList *operation_list) {
             printf(".%s:\n", current_list->operation->label);
         }
 
+        const char *src1 = current_list->operation->source1 ? map_register(current_list->operation->source1) : NULL;
+        const char *src2 = current_list->operation->source2 ? map_register(current_list->operation->source2) : NULL;
+        const char *dest = current_list->operation->source3 ? map_register(current_list->operation->source3) : NULL;
+
         if (strcmp(current_list->operation->opcode, LOADI) == 0) {
-            printf("    movq $%s, %%rax\n", current_list->operation->source1);
-            printf("    movq %%rax, %s\n", current_list->operation->source2);
+            printf("    movq $%s, %s\n", src1, src2);
         } else if (strcmp(current_list->operation->opcode, ADD) == 0) {
-            printf("    movq %s, %%rax\n", current_list->operation->source1);
-            printf("    addq %s, %%rax\n", current_list->operation->source2);
-            printf("    movq %%rax, %s\n", current_list->operation->source3);
+            printf("    movq %s, %%rax\n", src1);
+            printf("    addq %s, %%rax\n", src2);
+            printf("    movq %%rax, %s\n", dest);
+        } else if (strcmp(current_list->operation->opcode, SUB) == 0) {
+            printf("    movq %s, %%rax\n", src1);
+            printf("    subq %s, %%rax\n", src2);
+            printf("    movq %%rax, %s\n", dest);
+        } else if (strcmp(current_list->operation->opcode, MULT) == 0) {
+            printf("    movq %s, %%rax\n", src1);
+            printf("    imulq %s\n", src2);
+            printf("    movq %%rax, %s\n", dest);
+        } else if (strcmp(current_list->operation->opcode, DIV) == 0) {
+            printf("    movq %s, %%rax\n", src1);
+            printf("    cqo\n");
+            printf("    idivq %s\n", src2);
+            printf("    movq %%rax, %s\n", dest);
+        } else if (strcmp(current_list->operation->opcode, CMP_LT) == 0) {
+            printf("    movq %s, %%rax\n", src1);
+            printf("    cmpq %s, %%rax\n", src2);
+            printf("    setl %%al\n");
+            printf("    movzbl %%al, %s\n", dest);
+        } else if (strcmp(current_list->operation->opcode, CMP_EQ) == 0) {
+            printf("    movq %s, %%rax\n", src1);
+            printf("    cmpq %s, %%rax\n", src2);
+            printf("    sete %%al\n");
+            printf("    movzbl %%al, %s\n", dest);
+        } else if (strcmp(current_list->operation->opcode, CBR) == 0) {
+            printf("    cmpq $0, %s\n", src1);
+            printf("    jne .%s\n", current_list->operation->source2);
+            printf("    jmp .%s\n", current_list->operation->source3);
+        } else if (strcmp(current_list->operation->opcode, JUMP) == 0) {
+            printf("    jmp .%s\n", current_list->operation->source1);
         } else if (strcmp(current_list->operation->opcode, STOREAI) == 0) {
-            printf("    movq %s, -%s(%%rbp)\n", current_list->operation->source1, current_list->operation->source2);
+            printf("    movq %s, -%s(%%rbp)\n", src1, current_list->operation->source2);
+        } else if (strcmp(current_list->operation->opcode, LOADAI) == 0) {
+            printf("    movq -%s(%%rbp), %s\n", current_list->operation->source1, dest);
         }
 
         current_list = current_list->next;
