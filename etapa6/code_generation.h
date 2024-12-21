@@ -25,4 +25,6 @@ void iloc_list_destroy(ILOCOperationList *operation_list);
 // Function to display an ILOC operation list
 void iloc_list_display(ILOCOperationList *operation_list);
 
+void asm_list_display(ILOCOperationList *operation_list);
+
 #endif

@@ -33,11 +33,17 @@ parser.tab.o: parser.tab.c
 graph: saida.dot
 	dot -Tpng saida.dot -o result.png
 
+runi:
+	make clean
+	make
+	./etapa6 < teste.z
+
 run: 
 	make clean
 	make
-	cat test.txt | ./$(ETAPA)
-	make graph
+	./etapa6 < teste.z > saida.s
+	gcc saida.s -o programa
+	./programa > resultado.txt
 
 tar:
 	tar cvzf $(ETAPA).tgz main.c scanner.l parser.y asd.c asd.h types.h symbol_stack.c symbol_stack.h symbol_table.c symbol_table.h code_generation.c code_generation.h instructions.h Makefile

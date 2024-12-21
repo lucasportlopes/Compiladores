@@ -72,7 +72,6 @@ programa:
     abre_escopo lista_funcoes finaliza_pilha { 
         $$ = $2; 
         arvore = $$; 
-        iloc_list_display($$->code);
     }
     ;
 

@@ -154,3 +154,32 @@ void iloc_list_display(ILOCOperationList *operation_list) {
         current_list = current_list->next;
     }
 }
+
+void asm_list_display(ILOCOperationList *operation_list) {
+    ILOCOperationList *current_list = operation_list;
+
+    // gerar segmento de dados
+
+    while (current_list != NULL) {
+        if (current_list->operation->label != NULL) {
+            printf(".%s:\n", current_list->operation->label);
+        }
+
+        if (strcmp(current_list->operation->opcode, LOADI) == 0) {
+            printf("    movq $%s, %%rax\n", current_list->operation->source1);
+            printf("    movq %%rax, %s\n", current_list->operation->source2);
+        } else if (strcmp(current_list->operation->opcode, ADD) == 0) {
+            printf("    movq %s, %%rax\n", current_list->operation->source1);
+            printf("    addq %s, %%rax\n", current_list->operation->source2);
+            printf("    movq %%rax, %s\n", current_list->operation->source3);
+        } else if (strcmp(current_list->operation->opcode, STOREAI) == 0) {
+            printf("    movq %s, -%s(%%rbp)\n", current_list->operation->source1, current_list->operation->source2);
+        }
+
+        current_list = current_list->next;
+    }
+
+    printf("    mov %%rbp, %%rsp\n");
+    printf("    pop %%rbp\n");
+    printf("    ret\n");
+}
