@@ -168,7 +168,11 @@ const char* map_register(const char* iloc_register) {
 void asm_list_display(ILOCOperationList *operation_list) {
     ILOCOperationList *current_list = operation_list;
 
-    // gerar segmento de dados
+    printf("    .globl main");
+    printf("    .type main, @function");
+    printf("main:");
+    printf(".LFB0:");
+    printf("    pushq %rbp");
 
     while (current_list != NULL) {
         if (current_list->operation->label != NULL) {
@@ -225,5 +229,10 @@ void asm_list_display(ILOCOperationList *operation_list) {
 
     printf("    mov %%rbp, %%rsp\n");
     printf("    pop %%rbp\n");
+
     printf("    ret\n");
+    printf("    .cfi_endproc");
+    printf(".LFE0:");
+    printf("    .size main, .-main");
+    printf("    .section .note.GNU-stack,\"\",@progbits");
 }
