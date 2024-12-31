@@ -174,6 +174,12 @@ void asm_list_display(ILOCOperationList *operation_list) {
     printf(".LFB0:\n");
     printf("    .cfi_startproc\n");
     printf("    pushq %rbp\n");
+    printf("    .cfi_def_cfa_offset 16\n");
+    printf("    .cfi_offset 6, -16\n");
+    printf("    movq %rsp, %rbp\n");
+    printf("    .cfi_def_cfa_register 6\n");
+    // printf("    movq %rsp, %rbp\n");
+    // printf("    subq $16, %rsp\n");  
 
     while (current_list != NULL) {
         if (current_list->operation->label != NULL) {
@@ -186,10 +192,14 @@ void asm_list_display(ILOCOperationList *operation_list) {
 
         if (strcmp(current_list->operation->opcode, LOADI) == 0) {
             printf("    movq $%s, %s\n", src1, src2);
+            // printf("    movq $%s, -8(%%rbp)\n", src1);
         } else if(strcmp(current_list->operation->opcode, ADD) == 0) {
             printf("    movq %s, %%rax\n", src1);
             printf("    addq %s, %%rax\n", src2);
             printf("    movq %%rax, %s\n", dest);
+            // printf("    movq -8(%%rbp), %%rax\n");
+            // printf("    addq %s, %%rax\n");
+            // printf("    movq %%rax, -8(%%rbp)\n");
         } else if(strcmp(current_list->operation->opcode, SUB) == 0) {
             printf("    movq %s, %%rax\n", src1);
             printf("    subq %s, %%rax\n", src2);
@@ -248,16 +258,20 @@ void asm_list_display(ILOCOperationList *operation_list) {
             printf("    andq %s, %%rax\n", src2);
             printf("    movq %%rax, %s\n", dest);
         } else if (strcmp(current_list->operation->opcode, STOREAI) == 0) {
-            printf("    movq %s, -%s(%%rbp)\n", src1, current_list->operation->source2);
+            printf("    movq %s, -%s(%%rbp)\n", src1, current_list->operation->source3);
+            // printf("    movq %s, -%s(%%rbp)\n", src1, current_list->operation->source2);
         } else if (strcmp(current_list->operation->opcode, LOADAI) == 0) {
-            printf("    movq -%s(%%rbp), %s\n", src1, dest);
+            // printf("    movq -%s(%%rbp), %s\n", src1, dest);
+            printf("    movq -%s(%%rbp), %s\n", src2, dest);
+            // printf("    movq -%s(%%rbp), %s\n", src1, dest);
         } 
 
         current_list = current_list->next;
     }
 
-    // printf("    mov %%rbp, %%rsp\n");
-    printf("    pop %%rbp\n");
+    // printf("    movq %rbp, %rsp\n");
+    printf("    popq %rbp\n");
+    printf("    .cfi_def_cfa 7, 8\n");
     printf("    ret\n");
     printf("    .cfi_endproc\n");
     printf(".LFE0:\n");

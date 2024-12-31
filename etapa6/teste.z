@@ -1,5 +1,7 @@
 main = p1 <- int | p2 <- float | p3 <- int > int {
   int a <= 3;
-  a = a + 3;
-  return a;
+  int b <= 4;
+  int c;
+  c = a + b;
+  return c;
 }
