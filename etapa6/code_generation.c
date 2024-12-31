@@ -156,12 +156,20 @@ void iloc_list_display(ILOCOperationList *operation_list) {
 }
 
 const char* map_register(const char* iloc_register) {
-    if (strcmp(iloc_register, "r0") == 0) return "%rax";
-    if (strcmp(iloc_register, "r1") == 0) return "%rbx";
-    if (strcmp(iloc_register, "r2") == 0) return "%rcx";
-    if (strcmp(iloc_register, "r3") == 0) return "%rdx";
-    if (strcmp(iloc_register, "r4") == 0) return "%rsi";
-    if (strcmp(iloc_register, "r5") == 0) return "%rdi";
+    if (strcmp(iloc_register, "r0") == 0) return "%eax";
+    if (strcmp(iloc_register, "r1") == 0) return "%ebx";
+    if (strcmp(iloc_register, "r2") == 0) return "%ecx";
+    if (strcmp(iloc_register, "r3") == 0) return "%edx";
+    if (strcmp(iloc_register, "r4") == 0) return "%esi";
+    if (strcmp(iloc_register, "r5") == 0) return "%edi";
+    if (strcmp(iloc_register, "r6") == 0) return "%r8d";
+    if (strcmp(iloc_register, "r7") == 0) return "%r9d";
+    if (strcmp(iloc_register, "r8") == 0) return "%r10d";
+    if (strcmp(iloc_register, "r9") == 0) return "%r11d";
+    if (strcmp(iloc_register, "r10") == 0) return "%r12d";
+    if (strcmp(iloc_register, "r11") == 0) return "%r13d";
+    if (strcmp(iloc_register, "r12") == 0) return "%r14d";
+    if (strcmp(iloc_register, "r13") == 0) return "%r15d";
     return iloc_register; 
 }
 
@@ -178,8 +186,7 @@ void asm_list_display(ILOCOperationList *operation_list) {
     printf("    .cfi_offset 6, -16\n");
     printf("    movq %rsp, %rbp\n");
     printf("    .cfi_def_cfa_register 6\n");
-    // printf("    movq %rsp, %rbp\n");
-    // printf("    subq $16, %rsp\n");  
+    printf("    subq $32, %rsp\n");
 
     while (current_list != NULL) {
         if (current_list->operation->label != NULL) {
@@ -191,87 +198,78 @@ void asm_list_display(ILOCOperationList *operation_list) {
         const char *dest = current_list->operation->source3 ? map_register(current_list->operation->source3) : NULL;
 
         if (strcmp(current_list->operation->opcode, LOADI) == 0) {
-            printf("    movq $%s, %s\n", src1, src2);
-            // printf("    movq $%s, -8(%%rbp)\n", src1);
+            printf("    movl $%s, %s\n", src1, src2);
         } else if(strcmp(current_list->operation->opcode, ADD) == 0) {
-            printf("    movq %s, %%rax\n", src1);
-            printf("    addq %s, %%rax\n", src2);
-            printf("    movq %%rax, %s\n", dest);
-            // printf("    movq -8(%%rbp), %%rax\n");
-            // printf("    addq %s, %%rax\n");
-            // printf("    movq %%rax, -8(%%rbp)\n");
+            printf("    movl %s, %%eax\n", src1);
+            printf("    addl %s, %%eax\n", src2);
+            printf("    movl %%eax, %s\n", dest);
         } else if(strcmp(current_list->operation->opcode, SUB) == 0) {
-            printf("    movq %s, %%rax\n", src1);
-            printf("    subq %s, %%rax\n", src2);
-            printf("    movq %%rax, %s\n", dest);
+            printf("    movl %s, %%eax\n", src1);
+            printf("    subl %s, %%eax\n", src2);
+            printf("    movl %%eax, %s\n", dest);
         } else if(strcmp(current_list->operation->opcode, MULT) == 0) {
-            printf("    movq %s, %%rax\n", src1);
+            printf("    movl %s, %%eax\n", src1);
             printf("    imulq %s\n", src2);
-            printf("    movq %%rax, %s\n", dest);
+            printf("    movl %%eax, %s\n", dest);
         } else if(strcmp(current_list->operation->opcode, DIV) == 0) {
-            printf("    movq %s, %%rax\n", src1);
+            printf("    movl %s, %%eax\n", src1);
             printf("    cqo\n");
-            printf("    idivq %s\n", src2);
-            printf("    movq %%rax, %s\n", dest);
+            printf("    idivl %s\n", src2);
+            printf("    movl %%eax, %s\n", dest);
         } else if(strcmp(current_list->operation->opcode, CMP_LT) == 0) {
-            printf("    movq %s, %%rax\n", src1);
-            printf("    cmpq %s, %%rax\n", src2);
+            printf("    movl %s, %%eax\n", src1);
+            printf("    cmpl %s, %%eax\n", src2);
             printf("    setl %%al\n");
             printf("    movzbl %%al, %s\n", dest);
         } else if(strcmp(current_list->operation->opcode, CMP_EQ) == 0) {
-            printf("    movq %s, %%rax\n", src1);
-            printf("    cmpq %s, %%rax\n", src2);
+            printf("    movl %s, %%eax\n", src1);
+            printf("    cmpl %s, %%eax\n", src2);
             printf("    sete %%al\n");
             printf("    movzbl %%al, %s\n", dest);
         } else if(strcmp(current_list->operation->opcode, CBR) == 0) {
-            printf("    cmpq $0, %s\n", src1);
+            printf("    cmpl $0, %s\n", src1);
             printf("    jne .%s\n", src2);
             printf("    jmp .%s\n", dest);
         } else if(strcmp(current_list->operation->opcode, CMP_GT) == 0) {
-            printf("    movq %s, %%rax\n", src1);
-            printf("    cmpq %s, %%rax\n", src2);
+            printf("    movl %s, %%eax\n", src1);
+            printf("    cmpl %s, %%eax\n", src2);
             printf("    setg %%al\n");
             printf("    movzbl %%al, %s\n", dest);
         } else if(strcmp(current_list->operation->opcode, CMP_GE) == 0) {
-            printf("    movq %s, %%rax\n", src1);
-            printf("    cmpq %s, %%rax\n", src2);
+            printf("    movl %s, %%eax\n", src1);
+            printf("    cmpl %s, %%eax\n", src2);
             printf("    setge %%al\n");
             printf("    movzbl %%al, %s\n", dest);
         } else if(strcmp(current_list->operation->opcode, CMP_LE) == 0) {
-            printf("    movq %s, %%rax\n", src1);
-            printf("    cmpq %s, %%rax\n", src2);
+            printf("    movl %s, %%eax\n", src1);
+            printf("    cmpl %s, %%eax\n", src2);
             printf("    setle %%al\n");
             printf("    movzbl %%al, %s\n", dest);
         } else if(strcmp(current_list->operation->opcode, CMP_NE) == 0) {
-            printf("    movq %s, %%rax\n", src1);
-            printf("    cmpq %s, %%rax\n", src2);
+            printf("    movl %s, %%eax\n", src1);
+            printf("    cmpl %s, %%eax\n", src2);
             printf("    setne %%al\n");
             printf("    movzbl %%al, %s\n", dest);
         } else if(strcmp(current_list->operation->opcode, JUMPI) == 0) {
             printf("    jmp .%s\n", current_list->operation->source1);
         } else if(strcmp(current_list->operation->opcode, OR) == 0) {
-            printf("    movq %s, %%rax\n", src1);
-            printf("    orq %s, %%rax\n", src2);
-            printf("    movq %%rax, %s\n", dest);
+            printf("    movl %s, %%eax\n", src1);
+            printf("    orl %s, %%eax\n", src2);
+            printf("    movl %%eax, %s\n", dest);
         } else if(strcmp(current_list->operation->opcode, AND) == 0) {
-            printf("    movq %s, %%rax\n", src1);
-            printf("    andq %s, %%rax\n", src2);
-            printf("    movq %%rax, %s\n", dest);
+            printf("    movl %s, %%eax\n", src1);
+            printf("    andl %s, %%eax\n", src2);
+            printf("    movl %%eax, %s\n", dest);
         } else if (strcmp(current_list->operation->opcode, STOREAI) == 0) {
-            printf("    movq %s, -%s(%%rbp)\n", src1, current_list->operation->source3);
-            // printf("    movq %s, -%s(%%rbp)\n", src1, current_list->operation->source2);
+            printf("    movl %s, -%s(%%rbp)\n", src1, current_list->operation->source3);
         } else if (strcmp(current_list->operation->opcode, LOADAI) == 0) {
-            // printf("    movq -%s(%%rbp), %s\n", src1, dest);
-            printf("    movq -%s(%%rbp), %s\n", src2, dest);
-            // printf("    movq -%s(%%rbp), %s\n", src1, dest);
+            printf("    movl -%s(%%rbp), %s\n", src2, dest);
         } 
 
         current_list = current_list->next;
     }
 
-    // printf("    movq %rbp, %rsp\n");
-    printf("    popq %rbp\n");
-    printf("    .cfi_def_cfa 7, 8\n");
+    printf("    leave\n");
     printf("    ret\n");
     printf("    .cfi_endproc\n");
     printf(".LFE0:\n");

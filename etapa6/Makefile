@@ -36,14 +36,15 @@ graph: saida.dot
 runi:
 	make clean
 	make
-	./etapa6 < teste.z
+	./etapa6 < teste.z > what.txt
 
 run: 
 	make clean
 	make
 	./etapa6 < teste.z > saida.s
 	gcc saida.s -o programa
-	./programa > resultado.txt
+	./programa
+	echo $?
 
 tar:
 	tar cvzf $(ETAPA).tgz main.c scanner.l parser.y asd.c asd.h types.h symbol_stack.c symbol_stack.h symbol_table.c symbol_table.h code_generation.c code_generation.h instructions.h Makefile
