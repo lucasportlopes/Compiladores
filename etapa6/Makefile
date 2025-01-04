@@ -52,4 +52,4 @@ tar:
 .PHONY: clean
 
 clean:
-	rm -f *.o lex.yy.c $(ETAPA) parser.tab.* scanner.lex.c saida.dot result.png saida saida.txt
+	rm -f *.o lex.yy.c $(ETAPA) parser.tab.* scanner.lex.c saida.dot result.png saida saida.txt programa

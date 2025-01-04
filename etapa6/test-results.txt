@@ -1,0 +1,48 @@
+    .globl main
+    .type main, @function
+main:
+.LFB0:
+    .cfi_startproc
+    pushq %rbp
+    .cfi_def_cfa_offset 16
+    .cfi_offset 6, -16
+    movq %rsp, %rbp
+    .cfi_def_cfa_register 6
+    subq $32, %rsp
+    movl $1, %eax               // loadI 1 => r0
+    movl %eax, -0(%rbp)         // storeAI r0 => rfp, 0
+    movl $6, %ecx               // loadI 6 => r2
+    movl %ecx, -4(%rbp)         // storeAI r2 => rfp, 4
+.L0:
+    movl -0(%rbp), %esi         // edi = 1 ;; loadAI rfp, 0 => r4
+    movl -4(%rbp), %edi         // edi = 6 ;; loadAI rfp, 4 => r5
+        // cmp_LT r4, r5 => r6
+    movl %esi, %eax             // eax = 1
+    cmpl %edi, %eax             // eax - edi = 1 - 6
+    setl %al                    // al = 1 < 6 = 1
+    movzbl %al, %r8d            // r8d = 1
+
+    movl $0, %r13d              // r13d = 0
+    movl %r8d, %eax             // eax = 1
+    cmpl %r13d, %eax            // eax - r13d = 1 - 0
+    setne %al                   // al = 1 != 0 = 1
+    movzbl %al, %r14d           // r14d = 1
+
+    cmpl $0, %r8d               // r8d - 0 = 1 - 0
+    jne .L1                     // if r8d != 0 goto .L1
+    jmp .L2                     // goto .L2
+.L1:
+    movl -0(%rbp), %r9d         // r9d = 1 ;; loadAI rfp, 0 => r7
+    movl $1, %r10d // r10d = 1  // r10 = 1 ;; loadI 1 => r8
+    movl %r9d, %eax             // eax = 1
+    addl %r10d, %eax            // eax = 1 + 1 ;; add r7, r8 => r9 [a + 1]
+    movl %eax, %r11d            // r11d = 2
+    movl %r11d, -0(%rbp)        // storeAI r9 => rfp, 0 [a = a + 1]
+    jmp .L0                     // jumpI => L0
+.L2:
+    leave
+    ret
+    .cfi_endproc
+.LFE0:
+    .size main, .-main
+    .section .note.GNU-stack,"",@progbits

@@ -9,31 +9,35 @@ main:
     movq %rsp, %rbp
     .cfi_def_cfa_register 6
     subq $32, %rsp
-    movl $3, %eax
-    movl %eax, -12(%rbp)
+    movl $2, %eax
+    movl %eax, -0(%rbp)
     movl $1, %ecx
-    movl $1, %edx
-    movl %ecx, %eax
-    andl %edx, %eax
-    movl %eax, %esi
-    movl $0, %r9d
+    movl %ecx, -4(%rbp)
+    movl $1, %esi
+    movl $1, %edi
     movl %esi, %eax
-    cmpl %r9d, %eax
-    setne %al
-    movzbl %al, %r10d
-    cmpl $0, %esi
+    andl %edi, %eax
+    movl %eax, %r8d
+    cmpl $0, %r8d
     jne .L0
     jmp .L1
 .L0:
-    movl $1, %edi
-    movl %edi, -12(%rbp)
+    movl -0(%rbp), %r9d
+    movl $100, %r10d
+    movl %r9d, %eax
+    addl %r10d, %eax
+    movl %eax, %r11d
+    movl %r11d, -0(%rbp)
+    jmp .L2
 .L1:
-    movl -12(%rbp), %r11d
-    movl $4, %r12d
-    movl %r11d, %eax
-    addl %r12d, %eax
-    movl %eax, %r13d
-    movl %r13d, -16(%rbp)
+    movl -0(%rbp), %r13d
+    movl $200, %r14d
+    movl %r13d, %eax
+    addl %r14d, %eax
+    movl %eax, %r15d
+    movl %r15d, -0(%rbp)
+.L2:
+    movl -0(%rbp), %eax
     leave
     ret
     .cfi_endproc

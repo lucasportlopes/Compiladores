@@ -209,11 +209,11 @@ void asm_list_display(ILOCOperationList *operation_list) {
             printf("    movl %%eax, %s\n", dest);
         } else if(strcmp(current_list->operation->opcode, MULT) == 0) {
             printf("    movl %s, %%eax\n", src1);
-            printf("    imulq %s\n", src2);
+            printf("    imull %s\n", src2);
             printf("    movl %%eax, %s\n", dest);
         } else if(strcmp(current_list->operation->opcode, DIV) == 0) {
             printf("    movl %s, %%eax\n", src1);
-            printf("    cqo\n");
+            printf("    cdq\n");
             printf("    idivl %s\n", src2);
             printf("    movl %%eax, %s\n", dest);
         } else if(strcmp(current_list->operation->opcode, CMP_LT) == 0) {

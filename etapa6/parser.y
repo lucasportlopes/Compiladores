@@ -286,7 +286,13 @@ atribuicao:
     ;
 
 operacao_retorno: 
-    TK_PR_RETURN expressao { $$ = asd_new("return", $2->type); asd_add_child($$, $2); }
+    TK_PR_RETURN expressao { 
+        $$ = asd_new("return", $2->type); 
+        asd_add_child($$, $2); 
+        $$->code = $2->code;
+        // forçando o valor no registrador %eax para que o 'leave ret' funcione
+        $$->code->operation->source3 = "%eax";
+    }
     ;
 
 chamada_funcao:
@@ -338,8 +344,8 @@ fluxo_controle:
         char *label2 = generate_label();
 
 
-        ILOCOperation *zero = iloc_operation_create("loadI", "0", temp1, NULL, NULL); // Carrega 0 será usado para comparar com a expressão
-        ILOCOperation *op = iloc_operation_create("cmp_NE", $3->local, temp1, temp2, NULL); // Compara a expressão com 0
+        //ILOCOperation *zero = iloc_operation_create("loadI", "0", temp1, NULL, NULL); // Carrega 0 será usado para comparar com a expressão
+        //ILOCOperation *op = iloc_operation_create("cmp_NE", $3->local, temp1, temp2, NULL); // Compara a expressão com 0
         ILOCOperation *cbr_op = iloc_operation_create("cbr", $3->local, label1, label2, NULL); // Se a expressão for diferente de 0, vai para label1, senão vai para label2
         
         // Implementatação de condicional usando NOP
@@ -355,18 +361,12 @@ fluxo_controle:
         $$->code = iloc_list_concat(
             $3->code,
             iloc_list_concat(
-                iloc_list_create_node(zero),
+                iloc_list_create_node(cbr_op),
                 iloc_list_concat(
-                    iloc_list_create_node(op),
+                    iloc_list_create_node(label1_op),
                     iloc_list_concat(
-                        iloc_list_create_node(cbr_op),
-                        iloc_list_concat(
-                            iloc_list_create_node(label1_op),
-                            iloc_list_concat(
-                                block_code,
-                                iloc_list_create_node(label2_op)
-                            )
-                        )
+                        block_code,
+                        iloc_list_create_node(label2_op)
                     )
                 )
             )
@@ -383,8 +383,8 @@ fluxo_controle:
         char *label2 = generate_label();
         char *label3 = generate_label();
 
-        ILOCOperation *zero = iloc_operation_create("loadI", "0", temp1, NULL, NULL); // Carrega 0 será usado para comparar com a expressão
-        ILOCOperation *op = iloc_operation_create("cmp_NE", $3->local, temp1, temp2, NULL); // Compara a expressão com 0
+        //ILOCOperation *zero = iloc_operation_create("loadI", "0", temp1, NULL, NULL); // Carrega 0 será usado para comparar com a expressão
+        //ILOCOperation *op = iloc_operation_create("cmp_NE", $3->local, temp1, temp2, NULL); // Compara a expressão com 0
         ILOCOperation *cbr_op = iloc_operation_create("cbr", $3->local, label1, label2, NULL); // Se a expressão for diferente de 0, vai para label1, senão vai para label2
         
         // Implementatação de condicional usando NOP
@@ -409,24 +409,18 @@ fluxo_controle:
         $$->code = iloc_list_concat(
             $3->code,
             iloc_list_concat(
-                iloc_list_create_node(zero),
+                iloc_list_create_node(cbr_op),
                 iloc_list_concat(
-                    iloc_list_create_node(op),
+                    iloc_list_create_node(label1_op),
                     iloc_list_concat(
-                        iloc_list_create_node(cbr_op),
+                        block_code,
                         iloc_list_concat(
-                            iloc_list_create_node(label1_op),
+                            iloc_list_create_node(jump_op),
                             iloc_list_concat(
-                                block_code,
+                                iloc_list_create_node(label2_op),
                                 iloc_list_concat(
-                                    iloc_list_create_node(jump_op),
-                                    iloc_list_concat(
-                                        iloc_list_create_node(label2_op),
-                                        iloc_list_concat(
-                                            else_code,
-                                            iloc_list_create_node(label3_op)
-                                        )
-                                    )
+                                    else_code,
+                                    iloc_list_create_node(label3_op)
                                 )
                             )
                         )
@@ -439,8 +433,8 @@ fluxo_controle:
         $$ = asd_new("while", $3->type); 
         asd_add_child($$, $3); 
 
-        char *temp1 = generate_temp();
-        char *temp2 = generate_temp();
+        //char *temp1 = generate_temp();
+        //char *temp2 = generate_temp();
 
         char *condition = generate_label();
         char *body = generate_label();
@@ -448,9 +442,9 @@ fluxo_controle:
 
         // Implementatação de condicional usando NOP e jumpI 
         ILOCOperation *condition_op = iloc_operation_create("nop", NULL, NULL, NULL, condition); // Marca o início do loop
-        ILOCOperation *zero = iloc_operation_create("loadI", "0", temp1, NULL, NULL); // Carrega 0 será usado para comparar com a expressão
+        //ILOCOperation *zero = iloc_operation_create("loadI", "0", temp1, NULL, NULL); // Carrega 0 será usado para comparar com a e/xpressão
 
-        ILOCOperation *op = iloc_operation_create("cmp_NE", $3->local, temp1, temp2, NULL); // Compara a expressão com 0
+        //ILOCOperation *op = iloc_operation_create("cmp_NE", $3->local, temp1, temp2, NULL); // Compara a expressão com 0
         ILOCOperation *cbr_op = iloc_operation_create("cbr", $3->local, body, end, NULL); // Se a expressão for diferente de 0, vai para body, senão vai para end
 
         ILOCOperation *body_op = iloc_operation_create("nop", NULL, NULL, NULL, body); // Marca o início do corpo do loop
@@ -464,25 +458,19 @@ fluxo_controle:
 
         ILOCOperation *jump_op = iloc_operation_create("jumpI", condition, NULL, NULL, NULL); // Volta para o início do loop
 
-        $$->code = iloc_list_concat(
+         $$->code = iloc_list_concat(
             iloc_list_create_node(condition_op),
             iloc_list_concat(
                 $3->code,
                 iloc_list_concat(
-                    iloc_list_create_node(zero),
+                    iloc_list_create_node(cbr_op),
                     iloc_list_concat(
-                        iloc_list_create_node(op),
+                        iloc_list_create_node(body_op),
                         iloc_list_concat(
-                            iloc_list_create_node(cbr_op),
+                            block_code,
                             iloc_list_concat(
-                                iloc_list_create_node(body_op),
-                                iloc_list_concat(
-                                    block_code,
-                                    iloc_list_concat(
-                                        iloc_list_create_node(jump_op),
-                                        iloc_list_create_node(end_op)
-                                    )
-                                )
+                                iloc_list_create_node(jump_op),
+                                iloc_list_create_node(end_op)
                             )
                         )
                     )
